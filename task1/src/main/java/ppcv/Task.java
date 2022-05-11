@@ -30,8 +30,8 @@ public class Task {
                 .orderBy(col("count(guid)").desc());
 
         df1 = df1.select(col("domain").cast(StringType)).limit(5);
-        df1.show(false);
         System.out.println("Top 5 domain có số lượng GUID nhiều nhất.");
+        df1.show(false);
 
 
 
@@ -45,8 +45,8 @@ public class Task {
                 .orderBy(col("count(guid)").desc());
         df2 = df2.select(col("locid").cast(StringType)).limit(5);
 
-        df2.show(false);
         System.out.println("Top 5 vị trí địa lý có nhiều GUID truy cập nhất.");
+        df2.show(false);
 
 
 
@@ -69,7 +69,5 @@ public class Task {
 
         Dataset<Row> res = spark.createDataFrame(ls, structType);
         res.show(false);
-
-
     }
 }
