@@ -1,0 +1,9 @@
+1. /data/ppcv
+- Lấy top 5 domain có số lượng GUID nhiều nhất.
+- Lấy top 5 vị trí địa lý có nhiều GUID truy cập nhất. Vị trí địa lý sử dụng trường locid >1.
+- Tính tỉ lệ pageview phát sinh từ google, fb. Sử dụng trường refer để giải quyết.
+2. apcdx
+- Đếm số  GUID theo từng bannerid theo ngày 
+- Đếm số  GUID theo từng bannerid theo tháng
+- Tính toán việc phân bổ bannerid theo từng domain 
+=> Chú ý, các dữ liệu này lấy các row có click_or_view =false
