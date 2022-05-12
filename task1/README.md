@@ -1,20 +1,30 @@
-# Source code of [Task 1](https://github.com/dinhphu2k1-gif/Intern-Task/blob/master/task1/Task)
-This is a task during my internship at VCC
+Thông tin chi tiết về Task xem tại [đây](https://github.com/dinhphu2k1-gif/Intern-Task/blob/master/task1/Task)
 
-## How to run project
-Download source code: 
-> git clone https://github.com/dinhphu2k1-gif/Intern-Task.git
+# 1. /data/ppcv
+Chạy câu lệnh sau để chạy Job:
 
-Go to folder ***task1***
-> cd task1
+`spark-submit --class ppcv.Task --master yarn --deploy-mode client --num-executors 5 --executor-memory 2g --executor-cores 2 target/task1-1.0-SNAPSHOT.jar`
 
-Run command:
-> ./TaskPPCV.sh
+hoặc chạy file .sh
 
-to run task in folder hdfs:/data/ppcv
+`./TaskPPCV.sh`
 
-> ./TaskAPCDX
+# 2. /data/apcdx
+Chạy câu lệnh sau để chạy Job:
 
-to run task in folder hdfs:/data/apcdx
+`spark-submit --class apcdx.Task --master yarn --deploy-mode client --num-executors 5 --executor-memory 2g --executor-cores 2 target/task1-1.0-SNAPSHOT.jar`
 
-## How to check result
+hoặc chạy file .sh
+
+`./TaskAPCDX.sh`
+
+# 3. Kết quả
+Kết quả được lưu dưới dạng file Parquet ở folder "/result"
+Để xem được kết quả có thể chạy câu lệnh
+
+`spark-submit --class ShowResult --master yarn --deploy-mode client --num-executors 5 --executor-memory 2g --executor-cores 2 target/task1-1.0-SNAPSHOT.jar`
+
+hoặc
+
+`./ShowResult.sh`
+
