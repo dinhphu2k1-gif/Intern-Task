@@ -22,11 +22,11 @@ public class Task {
         return spark.read().format("parquet").load(path);
     }
 
-    public void writeParquet(Dataset<Row> df, String path){
+    public void writeParquet(Dataset<Row> df, String path) {
         df.write().mode("overwrite").parquet(path);
     }
 
-    public Dataset<Row> topBasedMaxGuid(Dataset<Row> df,String colName, int numRecords) {
+    public Dataset<Row> topBasedMaxGuid(Dataset<Row> df, String colName, int numRecords) {
         /**
          * Hàm lấy 1 DataFrame, tên cột và trả về số lượng records của cột dựa trên số lượng GUID nhiều nhất
          *
@@ -34,11 +34,13 @@ public class Task {
          * @param numRecords: số lượng bản ghi cần lấy
          * @return một DataFrame với 2 cột: $colName và count(guid) (BinaryType và IntegetType)
          */
-        Dataset<Row> newDf = df.groupBy(col(colName).cast(StringType))
+        Dataset<Row> newDf = df.groupBy(col(colName).cast(StringType).as(colName))
                 .agg(count("guid").as("numGUID"))
                 .orderBy(col("numGUID").desc());
         return newDf.limit(numRecords);
     }
+
+
 
 
     public void start() {
@@ -56,10 +58,15 @@ public class Task {
 
         System.out.println("============================================");
 
+        //Lấy top 5 vị trí địa lý có nhiều GUID truy cập nhất. Vị trí địa lý sử dụng trường locid >1.
         Dataset<Row> df2 = df1.filter("locid > 1");
         Dataset<Row> res2 = this.topBasedMaxGuid(df2, "locid", 5);
         res2.show(false);
         this.writeParquet(res2, "hdfs:/result/task1/ppcv/ex2");
+
+        System.out.println("============================================");
+
+        // Tính tỉ lệ pageview phát sinh từ google, fb. Sử dụng trường refer để giải quyết.
 
     }
 
