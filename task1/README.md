@@ -1,4 +1,4 @@
-# Source of [Task 1](https://github.com/dinhphu2k1-gif/Intern-Task/blob/master/task1/Task)
+# Source code of [Task 1](https://github.com/dinhphu2k1-gif/Intern-Task/blob/master/task1/Task)
 This is a task during my internship at VCC
 
 ## How to run project

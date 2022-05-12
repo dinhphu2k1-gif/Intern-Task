@@ -34,7 +34,7 @@ public class Task {
         res1 = res1.select(col("domain")
                     .cast(StringType), col("numGUID"));
 
-        res1.show(false);
+//        res1.show(false);
 
         functions.writeParquet(res1, "hdfs:/result/task1/ppcv/ex1");
 
@@ -45,7 +45,7 @@ public class Task {
                                 .filter("locid > 1");
 
         Dataset<Row> res2 = functions.topBasedMaxGuid(df2, 5, col("locid"));
-        res2.show(false);
+//        res2.show(false);
 
         functions.writeParquet(res2, "hdfs:/result/task1/ppcv/ex2");
 
@@ -64,10 +64,10 @@ public class Task {
 
         List<Row> ls = new ArrayList<Row>();
         ls.add(RowFactory.create("google", numGoogle * 100.0 / numRecords));
-        ls.add(RowFactory.create("facebook", numFacebook * 1.0 / numRecords));
+        ls.add(RowFactory.create("facebook", numFacebook * 100.0 / numRecords));
 
         Dataset<Row> res3 = spark.createDataFrame(ls, structType);
-        res3.show(false);
+//        res3.show(false);
         functions.writeParquet(res3, "hdfs:/result/task1/ppcv/ex3");
     }
 

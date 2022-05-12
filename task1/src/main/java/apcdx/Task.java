@@ -76,7 +76,7 @@ public class Task {
 
         //Đếm số GUID theo từng bannerid theo ngày
         Dataset<Row> res1 = functions.topBasedMaxGuid(df1, -1, col("date"), col("bannerId"));
-        res1.sample(.01).show(false);
+//        res1.sample(.01).show(false);
 
         functions.writeParquet(res1, "hdfs:/result/task1/apcdx/ex1");
 
@@ -88,7 +88,7 @@ public class Task {
                                 .drop("date");
 
         Dataset<Row> res2 = functions.topBasedMaxGuid(df2, -1, col("month"), col("bannerId"));
-        res2.sample(.01).show(false);
+//        res2.sample(.01).show(false);
 
         functions.writeParquet(res2, "hdfs:/result/task1/apcdx/ex2");
 
@@ -99,7 +99,7 @@ public class Task {
                 .drop("date");
 
         Dataset<Row> res3 = functions.topBasedMaxBanner(df3, -1, col("domain"));
-        res3.sample(.01).show(false);
+//        res3.sample(.01).show(false);
 
         functions.writeParquet(res3, "hdfs:/result/task1/apcdx/ex3");
     }
