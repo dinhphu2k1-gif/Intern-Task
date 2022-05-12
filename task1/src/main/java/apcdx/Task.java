@@ -77,6 +77,7 @@ public class Task {
         //Đếm số GUID theo từng bannerid theo ngày
         Dataset<Row> res1 = functions.topBasedMaxGuid(df1, -1, col("date"), col("bannerId"));
 //        res1.sample(.01).show(false);
+        res1.printSchema();
 
         functions.writeParquet(res1, "hdfs:/result/task1/apcdx/ex1");
 
