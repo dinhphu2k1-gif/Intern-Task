@@ -31,9 +31,6 @@ public class Task {
 
         //Lấy top 5 domain có số lượng GUID nhiều nhất.
         Dataset<Row> res1 = functions.topBasedMaxGuid(df1, 5, col("domain"));
-        res1 = res1.select(col("domain")
-                    .cast(StringType), col("numGUID"));
-
 //        res1.show(false);
 
         functions.writeParquet(res1, "hdfs:/result/task1/ppcv/ex1");
