@@ -84,6 +84,7 @@ public class Task {
 
         //Đếm số GUID theo từng bannerid theo tháng
         Dataset<Row> df2 = res1.withColumn("month", lit(res1.col("date").substr(0, 7)))
+                                .withColumnRenamed("numGUID", "guid")
                                 .drop("date");
 
         Dataset<Row> res2 = functions.topBasedMaxGuid(df2, -1, col("month"), col("bannerId"));
