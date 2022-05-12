@@ -4,10 +4,6 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import scala.collection.JavaConverters;
-import scala.collection.Seq;
-
-import java.util.Arrays;
 
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.count;
@@ -37,13 +33,38 @@ public class MyFunctions {
          * Hàm lấy 1 DataFrame, tên cột và trả về số lượng records của cột dựa trên số lượng GUID nhiều nhất
          *
          * @param df: bảng dữ liệu
+         * @param numRecords: số lượng bản ghi cần lấy, nếu -1 thì trả về toàn bộ bảng
          * @param colName: tên cột cần lấy thông tin
-         * @param numRecords: số lượng bản ghi cần lấy
-         * @return một DataFrame với 2 cột: $colName và count(guid) (BinaryType và IntegetType)
+         * @return một DataFrame
          */
         Dataset<Row> newDf = df.groupBy(colNames)
                 .agg(count("guid").as("numGUID"))
                 .orderBy(col("numGUID").desc());
+
+        if (numRecords == -1){
+            return newDf;
+        }
+
+        return newDf.limit(numRecords);
+    }
+
+    public Dataset<Row> topBasedMaxBanner(Dataset<Row> df, int numRecords, Column... colNames) {
+        /**
+         * Hàm lấy 1 DataFrame, tên cột và trả về số lượng records của cột dựa trên số lượng BannerId nhiều nhất
+         *
+         * @param df: bảng dữ liệu
+         * @param numRecords: số lượng bản ghi cần lấy, nếu -1 thì trả về toàn bộ bảng
+         * @param colName: tên cột cần lấy thông tin
+         * @return một DataFrame
+         */
+        Dataset<Row> newDf = df.groupBy(colNames)
+                .agg(count("bannerId").as("numBannerId"))
+                .orderBy(col("numBannerId").desc());
+
+        if (numRecords == -1){
+            return newDf;
+        }
+
         return newDf.limit(numRecords);
     }
 

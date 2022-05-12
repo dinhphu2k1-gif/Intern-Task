@@ -11,6 +11,7 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,46 +74,36 @@ public class Task {
 
         Dataset<Row> df1 = this.df.drop("domain");
 
+        //Đếm số GUID theo từng bannerid theo ngày
+        Dataset<Row> res1 = functions.topBasedMaxGuid(df1, -1, col("date"), col("bannerId"));
+        res1.sample(.01).show(false);
 
+        functions.writeParquet(res1, "hdfs:/result/task1/apcdx/ex1");
+
+        System.out.println("=============================");
+
+        //Đếm số GUID theo từng bannerid theo tháng
+        Dataset<Row> df2 = res1.withColumn("month", lit(res1.col("date").substr(0, 7)))
+                                .drop("date");
+
+        Dataset<Row> res2 = functions.topBasedMaxGuid(df2, -1, col("month"), col("bannerId"));
+        res2.sample(.01).show(false);
+
+        functions.writeParquet(res2, "hdfs:/result/task1/apcdx/ex2");
+
+        System.out.println("=============================");
+
+        //Tính toán việc phân bổ bannerid theo từng domain
+        Dataset<Row> df3 = this.df.drop("guid")
+                .drop("date");
+
+        Dataset<Row> res3 = functions.topBasedMaxBanner(df3, -1, col("domain"));
+        res3.sample(.01).show(false);
+
+        functions.writeParquet(res3, "hdfs:/result/task1/apcdx/ex3");
     }
     public static void main(String[] args) throws IOException {
         Task app = new Task();
         app.start();
-
-
-
-//        System.out.println("Đếm số GUID theo từng bannerid theo ngày");
-//        Dataset<Row> df2 = df1.drop("domain");
-//
-//        df2 = df2.groupBy("date", "bannerId")
-//                .agg(count("guid"))
-//                .orderBy(col("count(guid)").desc()).cache();
-//
-//        df2.sample(.01).show(false);
-//
-//        System.out.println("=============================");
-//
-//        Dataset<Row> df3 = df2.withColumn("month", lit(df2.col("date").substr(0, 7)));
-//
-//        df3 = df3.drop("date");
-//
-//        df3 = df3.groupBy(col("month"), col("bannerId"))
-//                .agg(count("count(guid)").as("count(guid)"))
-//                .orderBy(col("count(guid)").desc());
-//
-//        System.out.println("Đếm số  GUID theo từng bannerid theo tháng");
-//        df3.sample(.01).show(false);
-//
-//        System.out.println("=============================");
-//
-//        Dataset<Row> df4 = df1.drop("guid")
-//                .drop("date");
-//
-//        df4 = df4.groupBy("domain")
-//                .agg(count("bannerId"));
-//
-//        System.out.println("Tính toán việc phân bổ bannerid theo từng domain ");
-//        df4.sample(.01).show(false);
-
     }
 }
