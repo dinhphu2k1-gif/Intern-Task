@@ -1,0 +1,1 @@
+spark-submit --class ShowResult --master yarn --deploy-mode client --num-executors 5 --executor-memory 2g --executor-cores 2 target/task1-1.0-SNAPSHOT.jar
