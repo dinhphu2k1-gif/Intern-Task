@@ -27,7 +27,7 @@ public class MyFunctions {
         df.write().mode("overwrite").parquet(path);
     }
 
-    public Dataset<Row> topBasedMaxGuid(Dataset<Row> df, String colName, int numRecords) {
+    public Dataset<Row> topBasedMaxGuid(Dataset<Row> df, int numRecords, String... colNames) {
         /**
          * Hàm lấy 1 DataFrame, tên cột và trả về số lượng records của cột dựa trên số lượng GUID nhiều nhất
          *
@@ -36,7 +36,7 @@ public class MyFunctions {
          * @param numRecords: số lượng bản ghi cần lấy
          * @return một DataFrame với 2 cột: $colName và count(guid) (BinaryType và IntegetType)
          */
-        Dataset<Row> newDf = df.groupBy(col(colName))
+        Dataset<Row> newDf = df.groupBy(String.valueOf(colNames))
                 .agg(count("guid").as("numGUID"))
                 .orderBy(col("numGUID").desc());
         return newDf.limit(numRecords);

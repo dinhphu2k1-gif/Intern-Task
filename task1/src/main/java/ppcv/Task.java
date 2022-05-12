@@ -27,28 +27,34 @@ public class Task {
 
         this.df = functions.readParquetFile("hdfs:/data/ppcv/*");
 
-        Dataset<Row> df1 = df.select(col("domain"), col("guid"));
+        Dataset<Row> df1 = this.df.select(col("domain"), col("guid"));
 
         //Lấy top 5 domain có số lượng GUID nhiều nhất.
-        Dataset<Row> res1 = functions.topBasedMaxGuid(df1, "domain", 5);
-        res1 = res1.select(col("domain").cast(StringType), col("numGUID"));
+        Dataset<Row> res1 = functions.topBasedMaxGuid(df1, 5, "domain");
+        res1 = res1.select(col("domain")
+                    .cast(StringType), col("numGUID"));
+
         res1.show(false);
+
         functions.writeParquet(res1, "hdfs:/result/task1/ppcv/ex1");
 
         System.out.println("============================================");
 
         //Lấy top 5 vị trí địa lý có nhiều GUID truy cập nhất. Vị trí địa lý sử dụng trường locid >1.
-        Dataset<Row> df2 = df1.filter("locid > 1");
-        Dataset<Row> res2 = functions.topBasedMaxGuid(df2, "locid", 5);
+        Dataset<Row> df2 = this.df.select(col("locid"), col("guid"))
+                                .filter("locid > 1");
+
+        Dataset<Row> res2 = functions.topBasedMaxGuid(df2, 5, "locid");
         res2.show(false);
+
         functions.writeParquet(res2, "hdfs:/result/task1/ppcv/ex2");
 
         System.out.println("============================================");
 
         // Tính tỉ lệ pageview phát sinh từ google, fb. Sử dụng trường refer để giải quyết.
-        Dataset<Row> df3 = df.select(col("refer").cast(StringType));
+        Dataset<Row> df3 = this.df.select(col("refer").cast(StringType));
 
-        long numRecords = df.count();
+        long numRecords = this.df.count();
         long numGoogle = functions.countSubstring(df3, "refer", "google.com|com.google");
         long numFacebook = functions.countSubstring(df3, "refer", "facebook.com|com.facebook");
 
