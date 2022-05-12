@@ -30,7 +30,7 @@ public class Task {
         Dataset<Row> df1 = this.df.select(col("domain"), col("guid"));
 
         //Lấy top 5 domain có số lượng GUID nhiều nhất.
-        Dataset<Row> res1 = functions.topBasedMaxGuid(df1, 5, "domain");
+        Dataset<Row> res1 = functions.topBasedMaxGuid(df1, 5, col("domain"));
         res1 = res1.select(col("domain")
                     .cast(StringType), col("numGUID"));
 
@@ -44,7 +44,7 @@ public class Task {
         Dataset<Row> df2 = this.df.select(col("locid"), col("guid"))
                                 .filter("locid > 1");
 
-        Dataset<Row> res2 = functions.topBasedMaxGuid(df2, 5, "locid");
+        Dataset<Row> res2 = functions.topBasedMaxGuid(df2, 5, col("locid"));
         res2.show(false);
 
         functions.writeParquet(res2, "hdfs:/result/task1/ppcv/ex2");

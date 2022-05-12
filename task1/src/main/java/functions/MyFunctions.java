@@ -1,8 +1,13 @@
 package functions;
 
+import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import scala.collection.JavaConverters;
+import scala.collection.Seq;
+
+import java.util.Arrays;
 
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.count;
@@ -27,7 +32,7 @@ public class MyFunctions {
         df.write().mode("overwrite").parquet(path);
     }
 
-    public Dataset<Row> topBasedMaxGuid(Dataset<Row> df, int numRecords, String... colNames) {
+    public Dataset<Row> topBasedMaxGuid(Dataset<Row> df, int numRecords, Column... colNames) {
         /**
          * Hàm lấy 1 DataFrame, tên cột và trả về số lượng records của cột dựa trên số lượng GUID nhiều nhất
          *
@@ -36,7 +41,7 @@ public class MyFunctions {
          * @param numRecords: số lượng bản ghi cần lấy
          * @return một DataFrame với 2 cột: $colName và count(guid) (BinaryType và IntegetType)
          */
-        Dataset<Row> newDf = df.groupBy(String.valueOf(colNames))
+        Dataset<Row> newDf = df.groupBy(colNames)
                 .agg(count("guid").as("numGUID"))
                 .orderBy(col("numGUID").desc());
         return newDf.limit(numRecords);
