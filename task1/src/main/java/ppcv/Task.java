@@ -22,6 +22,10 @@ public class Task {
         return spark.read().format("parquet").load(path);
     }
 
+    public void writeParquet(Dataset<Row> df, String path){
+        df.write().mode("overwrite").parquet(path);
+    }
+
     public Dataset<Row> topBasedMaxGuid(Dataset<Row> df,String colName, int numRecords) {
         /**
          * Hàm lấy 1 DataFrame, tên cột và trả về số lượng records của cột dựa trên số lượng GUID nhiều nhất
@@ -30,10 +34,9 @@ public class Task {
          * @param numRecords: số lượng bản ghi cần lấy
          * @return một DataFrame với 2 cột: $colName và count(guid) (BinaryType và IntegetType)
          */
-        Dataset<Row> newDf = df.groupBy(col(colName))
-                .agg(count("guid"))
-                .orderBy(col("count(guid)").desc());
-
+        Dataset<Row> newDf = df.groupBy(col(colName).cast(StringType))
+                .agg(count("guid").as("numGUID"))
+                .orderBy(col("numGUID").desc());
         return newDf.limit(numRecords);
     }
 
@@ -44,16 +47,20 @@ public class Task {
 
         this.df = this.readParquetFile("hdfs:/data/ppcv/*");
 
-        Dataset<Row> df1 = df.select(col("domain"), col("guid")).cache();
+        Dataset<Row> df1 = df.select(col("domain"), col("guid"));
 
         //Lấy top 5 domain có số lượng GUID nhiều nhất.
         Dataset<Row> res1 = this.topBasedMaxGuid(df1, "domain", 5);
         res1.show(false);
-        res1.write().mode("overwrite").parquet("hdfs:/result/task1/ppcv/ex1");
+        this.writeParquet(res1, "hdfs:/result/task1/ppcv/ex1");
 
         System.out.println("============================================");
 
-//        Dataset<Row> df2 = df1.filter("locid > 1");
+        Dataset<Row> df2 = df1.filter("locid > 1");
+        Dataset<Row> res2 = this.topBasedMaxGuid(df2, "locid", 5);
+        res2.show(false);
+        this.writeParquet(res2, "hdfs:/result/task1/ppcv/ex2");
+
     }
 
     public static void main(String[] args) {
