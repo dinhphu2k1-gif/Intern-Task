@@ -7,7 +7,7 @@ public class ShowResult {
     private final String destinationP = "hdfs:/result/task1/ppcv/";
 
     public void start(){
-        SparkSession spark = SparkSession.builder().appName("Show Result Task").master("yarn").getOrCreate();
+        SparkSession spark = SparkSession.builder().appName("Show Result Task.txt").master("yarn").getOrCreate();
         spark.sparkContext().setLogLevel("ERROR");
 
         /*

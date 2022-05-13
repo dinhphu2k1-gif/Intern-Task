@@ -23,7 +23,7 @@ public class Task {
     private final String destination = "hdfs:/result/task1/ppcv/";
 
     public void start() {
-        this.spark = SparkSession.builder().appName("Task PPCV").master("yarn").getOrCreate();
+        this.spark = SparkSession.builder().appName("Task.txt PPCV").master("yarn").getOrCreate();
 
         this.functions = new MyFunctions(spark);
 

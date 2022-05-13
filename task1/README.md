@@ -1,4 +1,4 @@
-Thông tin chi tiết về Task xem tại [đây](https://github.com/dinhphu2k1-gif/Intern-Task/blob/master/task1/Task)
+Thông tin chi tiết về Task xem tại [đây](Task.txt)
 
 # 1. /data/ppcv
 Chạy câu lệnh sau để chạy Job:
@@ -27,4 +27,6 @@ Kết quả được lưu dưới dạng file Parquet ở folder "/result"
 hoặc
 
 `./ShowResult.sh`
+
+Kết quả mẫu được lưu ỏ file [Result.txt](Result.txt)
 

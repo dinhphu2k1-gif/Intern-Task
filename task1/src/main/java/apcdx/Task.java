@@ -55,7 +55,7 @@ public class Task {
     }
 
     public void start() throws IOException {
-        this.spark = SparkSession.builder().appName("Task APCDX").master("yarn").getOrCreate();
+        this.spark = SparkSession.builder().appName("Task.txt APCDX").master("yarn").getOrCreate();
 
         this.functions = new MyFunctions(this.spark);
 
