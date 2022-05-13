@@ -15,7 +15,7 @@
 - Sắp xếp kết quả: orderBy
 
 # 3. Chạy
-# 3.1. Build file Jars
+## 3.1. Build file Jars
 Chạy lệnh:
 `mvn clean package`
 
@@ -42,7 +42,7 @@ hoặc chạy file .sh
 
 `./taskAPCDX.sh`
 
-# 3. Kết quả
+# 4. Kết quả
 Kết quả được lưu dưới dạng file Parquet ở folder "/result"
 Để xem được kết quả có thể chạy câu lệnh
 
