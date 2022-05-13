@@ -2,6 +2,9 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
+import static org.apache.spark.sql.functions.col;
+import static org.apache.spark.sql.types.DataTypes.StringType;
+
 public class ShowResult {
     private final String destinationA = "hdfs:/result/task1/apcdx/";
     private final String destinationP = "hdfs:/result/task1/ppcv/";
@@ -15,6 +18,7 @@ public class ShowResult {
         - Lấy top 5 domain có số lượng GUID nhiều nhất.
          */
         Dataset<Row> df1 = spark.read().format("parquet").load( destinationP + "ex1/part-*");
+        df1 = df1.select(col("domain").cast(StringType), col("numGUID"));
         System.out.println("Top 5 domain có số lượng GUID nhiều nhất.");
         df1.show(false);
 
@@ -53,6 +57,7 @@ public class ShowResult {
         - Tính toán việc phân bổ bannerid theo từng domain
          */
         Dataset<Row> df6 = spark.read().format("parquet").load(destinationA + "ex3/part-*");
+        df6 = df6.select(col("domain").cast(StringType), col("numBannerId"));
         System.out.println("Tính toán việc phân bổ bannerid theo từng domain.");
         df6.show(false);
     }
