@@ -21,27 +21,13 @@ import static org.apache.spark.sql.types.DataTypes.*;
 
 public class Task {
     private SparkSession spark;
+    private MyFunctions functions;
     private Dataset<Row> df;
+    private List<String> directories;
+    private final String destination = "hdfs:/result/task1/apcdx/";
 
-    public void start() throws IOException {
-        this.spark = SparkSession.builder().appName("Task APCDX").master("yarn").getOrCreate();
-        this.spark.sparkContext().setLogLevel("ERROR");
-
-        MyFunctions functions = new MyFunctions(this.spark, "Task APCDX");
-
-        //Load đường dẫn
-        List<String> directories = new ArrayList<>();
-
-        Configuration conf = this.spark.sparkContext().hadoopConfiguration();
-        conf.set("fs.defaultFS", "hdfs://internship-hadoop105185:8220/");
-        FileStatus[] fs = FileSystem.get(conf).listStatus(new Path("hdfs://internship-hadoop105185:8220/data/apcdx/"));
-
-        for (FileStatus f : fs) {
-            if (f.isDirectory()) {
-                directories.add(f.getPath().toString());
-//                System.out.println(f.getPath());
-            }
-        }
+    public Dataset<Row> initialDf(){
+        Dataset<Row> newDf;
 
         StructType schema = createStructType(new StructField[]{
                 createStructField("date", StringType, true),
@@ -50,59 +36,63 @@ public class Task {
                 createStructField("domain", BinaryType, true)
         });
 
-        this.df = spark.createDataFrame(new ArrayList<>(), schema);
+        newDf = this.spark.createDataFrame(new ArrayList<>(), schema);
         // create a DataFrame from all files with date time
-        for (String directory : directories) {
-            Dataset<Row> df = spark.read()
-                    .format("parquet")
-                    .load(directory + "/*");
+        for (String directory : this.directories) {
+            Dataset<Row> df = this.functions.readParquetFile(directory + "/*");
 
             df = df.filter("click_or_view == 'false'");
             df = df.select(col("bannerId"), col("guid"), col("domain"));
             df = df.withColumn("date", lit(directory.substring(directory.length() - 10)).cast(StringType));
 
-//            df.show(false);
-            this.df = this.df.unionByName(df);
+            newDf = newDf.unionByName(df);
             System.out.println("Finish file: " + directory);
         }
 
+        newDf.printSchema();
 
-        this.df.sample(.01).show(false);
-        this.df.printSchema();
+        return newDf;
+    }
 
-        System.out.println("=============================");
+    public void start() throws IOException {
+        this.spark = SparkSession.builder().appName("Task APCDX").master("yarn").getOrCreate();
+
+        this.functions = new MyFunctions(this.spark);
+
+        //Load đường dẫn
+        this.directories = functions.getListDirs("hdfs://internship-hadoop105185:8220/data/apcdx/");
+
+        this.df = this.initialDf();
 
         Dataset<Row> df1 = this.df.drop("domain");
 
-        //Đếm số GUID theo từng bannerid theo ngày
+        /*
+            Đếm số GUID theo từng bannerid theo ngày
+         */
         Dataset<Row> res1 = functions.topBasedMaxGuid(df1, -1, col("date"), col("bannerId"));
-//        res1.sample(.01).show(false);
-        res1.printSchema();
 
-        functions.writeParquet(res1, "hdfs:/result/task1/apcdx/ex1");
+        functions.writeParquet(res1,  destination + "ex1");
 
-        System.out.println("=============================");
-
-        //Đếm số GUID theo từng bannerid theo tháng
+        /*
+            Đếm số GUID theo từng bannerid theo tháng
+         */
         Dataset<Row> df2 = res1.withColumn("month", lit(res1.col("date").substr(0, 7)))
                                 .withColumnRenamed("numGUID", "guid")
                                 .drop("date");
 
         Dataset<Row> res2 = functions.topBasedMaxGuid(df2, -1, col("month"), col("bannerId"));
-//        res2.sample(.01).show(false);
 
-        functions.writeParquet(res2, "hdfs:/result/task1/apcdx/ex2");
+        functions.writeParquet(res2, destination + "ex2");
 
-        System.out.println("=============================");
-
-        //Tính toán việc phân bổ bannerid theo từng domain
+        /*
+            Tính toán việc phân bổ bannerid theo từng domain
+         */
         Dataset<Row> df3 = this.df.drop("guid")
                 .drop("date");
 
         Dataset<Row> res3 = functions.topBasedMaxBanner(df3, -1, col("domain"));
-//        res3.sample(.01).show(false);
 
-        functions.writeParquet(res3, "hdfs:/result/task1/apcdx/ex3");
+        functions.writeParquet(res3, destination + "ex3");
     }
     public static void main(String[] args) throws IOException {
         Task app = new Task();

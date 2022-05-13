@@ -18,37 +18,37 @@ import functions.MyFunctions;
 public class Task {
     private SparkSession spark;
     private Dataset<Row> df;
+    private MyFunctions functions;
+    private final String source = "hdfs:/data/ppcv/*";
+    private final String destination = "hdfs:/result/task1/ppcv/";
 
     public void start() {
         this.spark = SparkSession.builder().appName("Task PPCV").master("yarn").getOrCreate();
-        this.spark.sparkContext().setLogLevel("ERROR");
 
-        MyFunctions functions = new MyFunctions(spark, "Task PPCV");
+        this.functions = new MyFunctions(spark);
 
-        this.df = functions.readParquetFile("hdfs:/data/ppcv/*");
+        this.df = functions.readParquetFile(source);
 
         Dataset<Row> df1 = this.df.select(col("domain"), col("guid"));
 
-        //Lấy top 5 domain có số lượng GUID nhiều nhất.
+        /*
+            Lấy top 5 domain có số lượng GUID nhiều nhất
+         */
         Dataset<Row> res1 = functions.topBasedMaxGuid(df1, 5, col("domain"));
-//        res1.show(false);
+        functions.writeParquet(res1, destination + "ex1");
 
-        functions.writeParquet(res1, "hdfs:/result/task1/ppcv/ex1");
-
-        System.out.println("============================================");
-
-        //Lấy top 5 vị trí địa lý có nhiều GUID truy cập nhất. Vị trí địa lý sử dụng trường locid >1.
+        /*
+            Lấy top 5 vị trí địa lý có nhiều GUID truy cập nhất. Vị trí địa lý sử dụng trường locid >1.
+         */
         Dataset<Row> df2 = this.df.select(col("locid"), col("guid"))
                                 .filter("locid > 1");
 
         Dataset<Row> res2 = functions.topBasedMaxGuid(df2, 5, col("locid"));
-//        res2.show(false);
+        functions.writeParquet(res2, destination + "ex2");
 
-        functions.writeParquet(res2, "hdfs:/result/task1/ppcv/ex2");
-
-        System.out.println("============================================");
-
-        // Tính tỉ lệ pageview phát sinh từ google, fb. Sử dụng trường refer để giải quyết.
+        /*
+            Tính tỉ lệ pageview phát sinh từ google, fb. Sử dụng trường refer để giải quyết.
+         */
         Dataset<Row> df3 = this.df.select(col("refer").cast(StringType));
 
         long numRecords = this.df.count();
@@ -64,8 +64,7 @@ public class Task {
         ls.add(RowFactory.create("facebook", numFacebook * 100.0 / numRecords));
 
         Dataset<Row> res3 = spark.createDataFrame(ls, structType);
-//        res3.show(false);
-        functions.writeParquet(res3, "hdfs:/result/task1/ppcv/ex3");
+        functions.writeParquet(res3,  destination + "ex3");
     }
 
     public static void main(String[] args) {
