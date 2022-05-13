@@ -34,15 +34,15 @@ public class MyFunctions {
         df.write().mode("overwrite").parquet(path);
     }
 
+    /**
+     * Hàm lấy 1 DataFrame, tên cột và trả về số lượng records của cột dựa trên số lượng GUID nhiều nhất
+     *
+     * @param df: bảng dữ liệu
+     * @param numRecords: số lượng bản ghi cần lấy, nếu -1 thì trả về toàn bộ bảng
+     * @param colName: tên cột cần lấy thông tin
+     * @return một DataFrame
+     */
     public Dataset<Row> topBasedMaxGuid(Dataset<Row> df, int numRecords, Column... colNames) {
-        /**
-         * Hàm lấy 1 DataFrame, tên cột và trả về số lượng records của cột dựa trên số lượng GUID nhiều nhất
-         *
-         * @param df: bảng dữ liệu
-         * @param numRecords: số lượng bản ghi cần lấy, nếu -1 thì trả về toàn bộ bảng
-         * @param colName: tên cột cần lấy thông tin
-         * @return một DataFrame
-         */
         Dataset<Row> newDf = df.groupBy(colNames)
                 .agg(count("guid").as("numGUID"))
                 .orderBy(col("numGUID").desc());
@@ -54,15 +54,15 @@ public class MyFunctions {
         return newDf.limit(numRecords);
     }
 
+    /**
+     * Hàm lấy 1 DataFrame, tên cột và trả về số lượng records của cột dựa trên số lượng BannerId nhiều nhất
+     *
+     * @param df: bảng dữ liệu
+     * @param numRecords: số lượng bản ghi cần lấy, nếu -1 thì trả về toàn bộ bảng
+     * @param colName: tên cột cần lấy thông tin
+     * @return một DataFrame
+     */
     public Dataset<Row> topBasedMaxBanner(Dataset<Row> df, int numRecords, Column... colNames) {
-        /**
-         * Hàm lấy 1 DataFrame, tên cột và trả về số lượng records của cột dựa trên số lượng BannerId nhiều nhất
-         *
-         * @param df: bảng dữ liệu
-         * @param numRecords: số lượng bản ghi cần lấy, nếu -1 thì trả về toàn bộ bảng
-         * @param colName: tên cột cần lấy thông tin
-         * @return một DataFrame
-         */
         Dataset<Row> newDf = df.groupBy(colNames)
                 .agg(count("bannerId").as("numBannerId"))
                 .orderBy(col("numBannerId").desc());
@@ -74,22 +74,23 @@ public class MyFunctions {
         return newDf.limit(numRecords);
     }
 
+    /**
+     *Hàm lấy 1 DataFrame, tên cột, chuỗi con và trả về số lượng bản ghi chứa chuỗi con đó
+     *
+     * @param df: bảng dữ liệu
+     * @param colName: tên cột cần lọc
+     * @param subString: chuỗi con cần lọc
+     * @return số lượng bản ghi chứa chuỗi con
+     */
     public long countSubstring(Dataset<Row> df, String colName, String subString) {
-        /**
-         *Hàm lấy 1 DataFrame, tên cột, chuỗi con và trả về số lượng bản ghi chứa chuỗi con đó
-         *
-         * @param df: bảng dữ liệu
-         * @param colName: tên cột cần lọc
-         * @param subString: chuỗi con cần lọc
-         * @return số lượng bản ghi chứa chuỗi con
-         */
         return df.filter(col(colName).rlike(subString)).count();
     }
 
+    /**
+     * Hàm để lấy tất cả folder trong 1 đường dẫn
+     */
     public List<String> getListDirs(String directory){
-        /**
-         * Hàm để lấy tất cả folder trong 1 đường dẫn
-         */
+
         List<String> paths = new ArrayList<>();
 
         Configuration conf = this.spark.sparkContext().hadoopConfiguration();
