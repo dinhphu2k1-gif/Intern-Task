@@ -50,7 +50,7 @@ Kết quả được lưu dưới dạng file Parquet ở folder "/result"
 
 hoặc
 
-`./ShowResult.sh`
+`./showResult.sh`
 
 Kết quả mẫu được lưu ỏ file [Result.txt](Result.txt)
 
