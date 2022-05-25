@@ -36,6 +36,7 @@ public class Read {
                 .readStream()
                 .format("kafka")
                 .option("kafka.bootstrap.servers", kafka_servers)
+                .option("fetch.min.bytes", "128000") // 125MB
                 .option("subscribe", topic)
                 .load()
                 .selectExpr("CAST(value AS STRING) AS value")
