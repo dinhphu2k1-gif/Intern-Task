@@ -9,6 +9,7 @@ import java.util.concurrent.TimeoutException;
 
 public class Write {
     private final String destinationPath = "/result/task-kafka";
+    private final String checkpoint = "/tmp/sparkcheckpoint1/";
     private SparkSession spark;
 
     public void writeToHDFS(){
@@ -20,6 +21,7 @@ public class Write {
                     .partitionBy("date")
                     .format("parquet")
                     .option("path", destinationPath)
+                    .option("checkpointLocation", checkpoint)
                     .outputMode("append")
                     .start()
                     .awaitTermination();
