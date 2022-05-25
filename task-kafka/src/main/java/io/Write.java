@@ -8,7 +8,7 @@ import org.apache.spark.sql.streaming.StreamingQueryException;
 import java.util.concurrent.TimeoutException;
 
 public class Write {
-    private final String destinationPath = "hdfs:/result/task-kafka";
+    private final String destinationPath = "/result/task-kafka";
     private SparkSession spark;
 
     public void writeToHDFS(){
@@ -20,6 +20,7 @@ public class Write {
                     .partitionBy("date")
                     .format("parquet")
                     .option("path", destinationPath)
+                    .outputMode("append")
                     .start()
                     .awaitTermination();
         } catch (TimeoutException | StreamingQueryException e) {
