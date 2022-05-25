@@ -33,7 +33,7 @@ public class Read {
             Read data from kafka and init HLL sketch (a binary column) for each row
          */
         Dataset<Row> df = spark
-                .read()
+                .readStream()
                 .format("kafka")
                 .option("kafka.bootstrap.servers", kafka_servers)
                 .option("subscribe", topic)
