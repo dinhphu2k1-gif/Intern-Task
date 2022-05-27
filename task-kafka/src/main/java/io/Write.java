@@ -4,6 +4,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.StreamingQueryException;
+import org.apache.spark.sql.streaming.Trigger;
 
 import java.util.concurrent.TimeoutException;
 
@@ -18,6 +19,7 @@ public class Write {
 
         try {
             df.writeStream()
+                    .trigger(Trigger.ProcessingTime("1 minute"))
                     .partitionBy("date")
                     .format("parquet")
                     .option("path", destinationPath)
