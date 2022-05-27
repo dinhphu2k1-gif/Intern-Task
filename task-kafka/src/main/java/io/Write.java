@@ -35,6 +35,7 @@ public class Write {
                 .write()
                 .format("parquet")
                 .mode("overwrite")
+                .partitionBy("date")
                 .saveAsTable("aggregates");
 
 
@@ -50,7 +51,7 @@ public class Write {
                     .option("checkpointLocation", checkpoint)
                     .foreachBatch(this::mergeDF)
                     .outputMode("update")
-                    .partitionBy("date")
+//                    .partitionBy("date")
                     .start()
                     .awaitTermination();
         } catch (TimeoutException | StreamingQueryException e) {
