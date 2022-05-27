@@ -49,9 +49,12 @@ public class Read {
                 col("split(value)").getItem(6).cast(LongType).as("guid"))
                 ;
 
-        midDf = midDf.withColumn("date", to_date(col("time"), "yyyy-MM-dd"))
+        midDf = midDf
 //                .withColumn("guid_hll", hll_init("guid"));
-                .groupBy("time", "bannerId").agg(hll_init_agg("guid").as("id_hll"));
+                .groupBy("time", "bannerId").agg(hll_init_agg("guid").as("id_hll"))
+                .groupBy("time", "bannerId").agg(hll_merge("id_hll").as("id_hll"))
+                .withColumn("date", to_date(col("time"), "yyyy-MM-dd"))
+                ;
 
         return midDf;
     }
