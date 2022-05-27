@@ -17,28 +17,7 @@ public class Write {
     private final String checkpoint = "/tmp/sparkcheckpoint1/";
     private SparkSession spark;
 
-//    public void mergeDF(Dataset<Row> microDF, Long batchId) {
-//        microDF.createOrReplaceTempView("updates");
-//
-//        microDF.sparkSession().sql("MERGE INTO aggregates t USING updates s ON s.id_hll = t.id_hll WHEN MATCHED THEN UPDATE SET * WHEN NOT MATCHED THEN INSERT *");
-//    }
-
     public void writeToHDFS() {
-//        StructType schema = new StructType()
-//                .add("time", TimestampType)
-//                .add("bannerId", IntegerType)
-//                .add("guid", LongType)
-//                .add("date", DateType)
-//                .add("id_hll", BinaryType);
-//
-//        spark.createDataFrame(new ArrayList<>(), schema)
-//                .write()
-//                .format("parquet")
-//                .mode("overwrite")
-//                .partitionBy("date")
-//                .saveAsTable("aggregates");
-
-
         Read read = new Read(spark);
         Dataset<Row> df = read.readKafka();
 
@@ -46,12 +25,11 @@ public class Write {
             df.coalesce(1)
                     .writeStream()
                     .trigger(Trigger.ProcessingTime("1 hours"))
+                    .partitionBy("date")
                     .format("parquet")
                     .option("path", destinationPath)
                     .option("checkpointLocation", checkpoint)
-//                    .foreachBatch(this::mergeDF)
                     .outputMode("append")
-                    .partitionBy("date")
                     .start()
                     .awaitTermination();
         } catch (TimeoutException | StreamingQueryException e) {
