@@ -50,7 +50,8 @@ public class Read {
                 ;
 
         midDf = midDf.withColumn("date", to_date(col("time"), "yyyy-MM-dd"))
-                .withColumn("guid_hll", hll_init("guid"));
+//                .withColumn("guid_hll", hll_init("guid"));
+                .groupBy("time", "bannerId").agg(hll_init_agg("guid").as("id_hll"));
 
         return midDf;
     }
