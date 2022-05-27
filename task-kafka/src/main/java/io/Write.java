@@ -18,8 +18,8 @@ public class Write {
         Dataset<Row> df = read.readKafka();
 
         try {
-            df.writeStream()
-                    .trigger(Trigger.ProcessingTime("1 minute"))
+            df.coalesce(1).writeStream()
+//                    .trigger(Trigger.ProcessingTime("1 minute"))
                     .partitionBy("date")
                     .format("parquet")
                     .option("path", destinationPath)
