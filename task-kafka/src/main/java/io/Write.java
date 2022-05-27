@@ -44,13 +44,13 @@ public class Write {
         try {
             df.coalesce(1)
                     .writeStream()
-//                    .trigger(Trigger.ProcessingTime("1 minute"))
-                    .partitionBy("date")
+//                    .trigger(Trigger.ProcessingTime("1 minute")
                     .format("parquet")
                     .option("path", destinationPath)
                     .option("checkpointLocation", checkpoint)
                     .foreachBatch(this::mergeDF)
                     .outputMode("update")
+                    .partitionBy("date")
                     .start()
                     .awaitTermination();
         } catch (TimeoutException | StreamingQueryException e) {
