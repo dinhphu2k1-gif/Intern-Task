@@ -17,13 +17,12 @@ public class Write {
     private final String checkpoint = "/tmp/sparkcheckpoint1/";
     private SparkSession spark;
 
-    public void writeToHDFS() {
+    public void writeToHDFS(){
         Read read = new Read(spark);
         Dataset<Row> df = read.readKafka();
 
         try {
-            df.coalesce(1)
-                    .writeStream()
+            df.coalesce(1).writeStream()
                     .trigger(Trigger.ProcessingTime("1 hours"))
                     .partitionBy("date")
                     .format("parquet")
@@ -37,7 +36,7 @@ public class Write {
         }
     }
 
-    public void run() {
+    public void run(){
         this.spark = SparkSession.builder().appName("Read write data").master("yarn").getOrCreate();
 
         writeToHDFS();
