@@ -33,7 +33,7 @@ public class Write {
 
         spark.createDataFrame(new ArrayList<>(), schema)
                 .write()
-                .format("delta")
+                .format("parquet")
                 .mode("overwrite")
                 .saveAsTable("aggregates");
 
