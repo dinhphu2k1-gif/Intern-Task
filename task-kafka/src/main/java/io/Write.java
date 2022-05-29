@@ -9,7 +9,7 @@ import org.apache.spark.sql.streaming.Trigger;
 import java.util.concurrent.TimeoutException;
 
 public class Write {
-    private final String destinationPath = "/result/task-kafka";
+    private final String destinationPath = "/data/task-kafka";
     private final String checkpoint = "/tmp/sparkcheckpoint1/";
     private SparkSession spark;
 
