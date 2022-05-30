@@ -9,8 +9,19 @@ import org.apache.spark.sql.streaming.Trigger;
 import java.util.concurrent.TimeoutException;
 
 public class Write {
+    /**
+     * Nơi lưu trữ dữ liệu đọc từ Kafka.
+     */
     private final String destinationPath = "/data/task-kafka";
+
+    /**
+     *  Lưu giữ các điểm kiểm tra phục vụ cho việc phục hồi dữ liệu.
+     */
     private final String checkpoint = "/tmp/sparkcheckpoint1/";
+
+    /**
+     * SparkSession.
+     */
     private SparkSession spark;
 
     /**

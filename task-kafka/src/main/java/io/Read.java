@@ -1,7 +1,3 @@
-/**
-  *  Chứa chương trình để đọc dữ liệu từ Kafka và lưu vào HDFS
- */
-
 package io;
 
 import org.apache.spark.sql.Dataset;
@@ -18,9 +14,9 @@ import static org.apache.spark.sql.types.DataTypes.TimestampType;
 
 public class Read {
     /**
-     * Thông tin về các node và cổng từ Kafka cần lấy dữ liệu
+     * Thông tin về các node và cổng từ Kafka cần lấy dữ liệu.
      */
-    private final String kafka_servers = "10.3.68.20:9092,"
+    private final String kafkaServers = "10.3.68.20:9092,"
             + "10.3.68.21:9092,"
             + "10.3.68.23:9092,"
             + "10.3.68.26:9092,"
@@ -32,28 +28,32 @@ public class Read {
             + "10.3.68.52:9092";
 
     /**
-     * Topic
+     * Topic.
      */
     private final String topic = "rt-queue_1";
 
     /**
-     *
+     * SparkSession.
      */
-    private final SparkSession spark;
+    private SparkSession spark;
 
-    public Read(final SparkSession spark) {
+    /**
+     * Contructor.
+     * @param spark
+     */
+    public Read(SparkSession spark) {
         this.spark = spark;
     }
 
     /**
-     * Read data from kafka
+     * Read data from kafka.
      * @return : một Dataframe sau khi tách và chuyển đổi kiểu dữ liệu
      */
     public Dataset<Row> readKafka() {
         Dataset<Row> df = spark
                 .readStream()
                 .format("kafka")
-                .option("kafka.bootstrap.servers", kafka_servers)
+                .option("kafka.bootstrap.servers", kafkaServers)
                 .option("subscribe", topic)
 //                .option("startingOffsets", "earliest")
                 .load()
@@ -61,9 +61,20 @@ public class Read {
 
         df = df.select(split(col("value"), "\t").as("split(value)"));
 
-        Dataset<Row> midDf = df.select(col("split(value)").getItem(0).cast(LongType).cast(TimestampType).as("time"),
-                col("split(value)").getItem(4).cast(IntegerType).as("bannerId"),
-                col("split(value)").getItem(6).cast(LongType).as("guid"));
+        Dataset<Row> midDf = df.select(
+                col("split(value)")
+                        .getItem(0)
+                        .cast(LongType)
+                        .cast(TimestampType)
+                        .as("time"),
+                col("split(value)")
+                        .getItem(4)
+                        .cast(IntegerType)
+                        .as("bannerId"),
+                col("split(value)")
+                        .getItem(6)
+                        .cast(LongType)
+                        .as("guid"));
 
         midDf = midDf.withColumn("date", to_date(col("time"), "yyyy-MM-dd"));
         return midDf;
