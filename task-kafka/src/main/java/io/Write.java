@@ -25,7 +25,7 @@ public class Write {
     private SparkSession spark;
 
     /**
-     * Ghi dữ liệu đọc được từ Kafka vào HDFS
+     * Ghi dữ liệu đọc được từ Kafka vào HDFS.
      * Cứ sau 30p sẽ cập nhật dữ liệu từ Kafka 1 lần
      */
     public void writeToHDFS() {
@@ -48,13 +48,21 @@ public class Write {
     }
 
     /**
-     * Bắt đầu chạy chương trình
+     * Bắt đầu chạy chương trình.
      */
     public void run() {
-        this.spark = SparkSession.builder().appName("Read write data").master("yarn").getOrCreate();
+        this.spark = SparkSession
+                .builder()
+                .appName("Read write data")
+                .master("yarn")
+                .getOrCreate();
         writeToHDFS();
     }
 
+    /**
+     * Main Application.
+     * @param args
+     */
     public static void main(String[] args) {
         Write write = new Write();
         write.run();

@@ -30,11 +30,18 @@ import static org.apache.spark.sql.types.DataTypes.IntegerType;
 import static org.apache.spark.sql.types.DataTypes.TimestampType;
 
 public class CountDistinct {
+    /**
+     * SparkSession.
+     */
     private SparkSession spark;
+
+    /**
+     * Nơi đọc dữ liệu.
+     */
     private final String sourcePath = "/data/task-kafka";
 
     /**
-     * Lấy toàn bộ folder tại đường dẫn được chỉ định
+     * Lấy toàn bộ folder tại đường dẫn được chỉ định.
      *
      * @param directory : đường dẫn
      * @return danh sách các đường dẫn
@@ -62,7 +69,7 @@ public class CountDistinct {
     }
 
     /**
-     * Lấy các foler có thời gian tạo nằm trong khoảng 1 thời gian cho trước
+     * Lấy các foler có thời gian tạo nằm trong khoảng 1 thời gian cho trước.
      *
      * @param startTime : thời gian bắt đầu
      * @param endTime :   thời gian kết thúc
@@ -77,7 +84,8 @@ public class CountDistinct {
         List<String> ls = new ArrayList<>();
         for (String dir : listDirs) {
             String folder = dir.substring(dir.length() - 10);
-            if (folder.compareTo(startDate) >= 0 && folder.compareTo(endDate) <= 0) {
+            if (folder.compareTo(startDate) >= 0
+                & folder.compareTo(endDate) <= 0) {
                 ls.add(dir);
             }
         }
@@ -90,7 +98,7 @@ public class CountDistinct {
      * @param startTime : thời gian bắt đầu
      * @param endTime : thời gian kết thúc
      */
-    public void count_distinct(String startTime, String endTime) {
+    public void countDistinct(String startTime, String endTime) {
         List<String> list = this.getListFolder(startTime, endTime);
 
         Dataset<Row> newDF;
@@ -112,8 +120,10 @@ public class CountDistinct {
 
         newDF = newDF.filter(col("time").geq(startTime).leq(endTime));
 
-        Dataset<Row> resDF = newDF.groupBy("bannerId").agg(hll_init_agg("guid").as("guid_hll"))
-                .groupBy("bannerId").agg(hll_merge("guid_hll").as("guid_hll"));
+        Dataset<Row> resDF = newDF.groupBy("bannerId")
+                .agg(hll_init_agg("guid").as("guid_hll"))
+                .groupBy("bannerId")
+                .agg(hll_merge("guid_hll").as("guid_hll"));
 
         resDF.select(col("bannerId"), hll_cardinality("guid_hll").as("count"))
                 .orderBy(desc("count"))
@@ -124,11 +134,18 @@ public class CountDistinct {
      *
      */
     public void run() {
-        this.spark = SparkSession.builder().appName("Count distinct bannerId").master("yarn").getOrCreate();
+        this.spark = SparkSession.builder()
+                .appName("Count distinct bannerId")
+                .master("yarn")
+                .getOrCreate();
 
-        this.count_distinct("2022-05-29 06:00:00", "2022-05-30 06:00:00");
+        this.countDistinct("2022-05-30 06:00:00", "2022-05-31 06:00:00");
     }
 
+    /**
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         CountDistinct app = new CountDistinct();
         app.run();
