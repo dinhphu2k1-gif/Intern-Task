@@ -118,7 +118,7 @@ public class CountDistinct {
             System.out.println("Finish file: " + dir);
         }
         newDF.show(false);
-        newDF = newDF.filter(col("time").geq(startTime).leq(endTime));
+        newDF = newDF.filter(col("time").geq(startTime));
         newDF.show(false);
 
 
