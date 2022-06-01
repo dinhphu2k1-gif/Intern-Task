@@ -6,7 +6,8 @@ import org.apache.spark.sql.SparkSession;
 
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.split;
-import static org.apache.spark.sql.functions.to_date;
+import static org.apache.spark.sql.functions.when;
+import static org.apache.spark.sql.functions.date_sub;
 
 import static org.apache.spark.sql.types.DataTypes.LongType;
 import static org.apache.spark.sql.types.DataTypes.IntegerType;
@@ -74,9 +75,19 @@ public class Read {
                 col("split(value)")
                         .getItem(6)
                         .cast(LongType)
-                        .as("guid"));
+                        .as("guid"))
+                .withColumn("Date", split(col("time"), " ")
+                        .getItem(0))
+                .withColumn("Hour", split(col("time"), " ")
+                        .getItem(1))
+                .drop(col("time"));
 
-        midDf = midDf.withColumn("date", to_date(col("time"), "yyyy-MM-dd"));
+        midDf = midDf.withColumn("day",
+                        when(col("Hour").geq("06:00:00"), col("Date"))
+                                .otherwise(date_sub(col("Date"), 1)))
+                .drop(col("Date"))
+                .drop(col("Hour"));
+
         return midDf;
     }
 }
