@@ -58,9 +58,13 @@ public class Write {
                                     .agg(hll_merge("guid_hll")
                                             .as("guid_hll"))
                                     .write()
-                                    .jdbc("jdbc:mysql://10.3.105.61:3306/task"
-                                            , "logs"
-                                            , properties)
+                                    .format("jdbc")
+                                    .option("driver", "com.mysql.jdbc.Driver")
+                                    .option("url", "jdbc:mysql://10.3.105.61:3306/task")
+                                    .option("dbtable", "logs")
+                                    .option("user", "root")
+                                    .option("password", "123456")
+                                    .save()
                     )
                     .start()
                     .awaitTermination();
