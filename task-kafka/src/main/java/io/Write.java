@@ -57,13 +57,10 @@ public class Write {
                                     .groupBy(col("day"), col("bannerId"))
                                     .agg(hll_merge("guid_hll")
                                             .as("guid_hll"))
-                    )
-                    .foreachBatch((VoidFunction2<Dataset<Row>, Long>) (batchDF, batchId) ->
-                            batchDF.write()
+                                    .write()
                                     .jdbc("jdbc:mysql://10.3.105.61:3306/task"
                                             , "logs"
                                             , properties)
-
                     )
                     .start()
                     .awaitTermination();
