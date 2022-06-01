@@ -64,6 +64,7 @@ public class Write {
                                     .option("dbtable", "logs")
                                     .option("user", "root")
                                     .option("password", "123456")
+                                    .mode("append")
                                     .save()
                     )
                     .start()
