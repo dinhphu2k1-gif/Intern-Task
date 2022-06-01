@@ -60,7 +60,7 @@ public class Write {
                                     .write()
                                     .format("jdbc")
                                     .option("driver", "com.mysql.cj.jdbc.Driver")
-                                    .option("url", "jdbc:mysql://10.3.105.61:3306/task")
+                                    .option("url", "jdbc:mysql://localhost:3306/task")
                                     .option("dbtable", "logs")
                                     .option("user", "root")
                                     .option("password", "123456")
