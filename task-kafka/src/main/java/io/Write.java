@@ -1,5 +1,6 @@
 package io;
 
+import org.apache.hadoop.hbase.spark.datasources.HBaseTableCatalog;
 import org.apache.spark.api.java.function.VoidFunction2;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -11,7 +12,6 @@ import static org.apache.spark.sql.functions.col;
 import static com.swoop.alchemy.spark.expressions.hll.functions.hll_init_agg;
 import static com.swoop.alchemy.spark.expressions.hll.functions.hll_merge;
 
-import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
 public class Write {
@@ -40,11 +40,56 @@ public class Write {
 
         try {
             df.coalesce(1).writeStream()
-                    .trigger(Trigger.ProcessingTime("2 minutes"))
-//                    .partitionBy("date")
+                    .trigger(Trigger.ProcessingTime("1 hours"))
+                    .foreachBatch((VoidFunction2<Dataset<Row>, Long>) (batchDF, batchId) ->
+                            batchDF.groupBy(col("day"), col("bannerId"))
+                                    .agg(hll_init_agg("guid")
+                                            .as("guid_hll"))
+                                    .groupBy(col("day"), col("bannerId"))
+                                    .agg(hll_merge("guid_hll")
+                                            .as("guid_hll"))
+                    )
                     .format("parquet")
                     .option("path", destinationPath)
                     .option("checkpointLocation", checkpoint)
+                    .outputMode("append")
+                    .start()
+                    .awaitTermination();
+        } catch (TimeoutException | StreamingQueryException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    /**
+     * Ghi dữ liệu từ Kafka vào Hbase
+     */
+    public void writeToHbase() {
+        Read read = new Read(spark);
+        Dataset<Row> df = read.readKafka();
+
+        Dataset<Row> oldDF = spark
+                .read()
+                .format("org.apache.hadoop.hbase.spark")
+                .option("hbase.columns.mapping","day STRING, bannerId INT(11), guid_hll: BINARY")
+                .option("hbase.table", "logs")
+                .option("hbase.spark.use.hbasecontext", false)
+                .load();
+
+        String catalog = "{"
+         + "'table':{'namespace':'default', 'name':'logs'},"
+         + "'rowkey':'key',"
+         + "'columns':{"
+         + "'key':{'cf':'rowkey', 'col':'key', 'type':'int'},"
+         + "'day':{'cf':'logs', 'col':'day', 'type':'string'},"
+         + "'bannerId':{'cf':'logs', 'col':'bannerId', 'type':'int'},"
+         + "'mName':{'cf':'logs', 'col':'guid_hll', 'type':'binary'}"
+         + "}"
+         + '}';
+
+        try {
+            df.coalesce(1).writeStream()
+                    .trigger(Trigger.ProcessingTime("2 minutes"))
                     .outputMode("append")
                     .foreachBatch((VoidFunction2<Dataset<Row>, Long>) (batchDF, batchId) ->
                             batchDF.groupBy(col("day"), col("bannerId"))
@@ -53,18 +98,13 @@ public class Write {
                                     .groupBy(col("day"), col("bannerId"))
                                     .agg(hll_merge("guid_hll")
                                             .as("guid_hll"))
+                                    .union(oldDF)
+                                    .groupBy(col("day"), col("bannerId"))
+                                    .agg(hll_merge("guid_hll")
+                                            .as("guid_hll"))
                                     .write()
-//                                    .format("jdbc")
-//                                    .option("driver", "com.mysql.cj.jdbc.Driver")
-//                                    .option("url", "jdbc:mysql://localhost:3306/task")
-//                                    .option("dbtable", "logs")
-//                                    .option("user", "root")
-//                                    .option("password", "123456")
-//                                    .mode("append")
-//                                    .save()
-                                    .format("org.apache.spark.sql.execution.datasources.hbase")
-                                    .option("hbase.namespace", "default")
-                                    .option("hbase.table", "logs")
+                                    .format("org.apache.hadoop.hbase.spark")
+                                    .option("hbase.columns.mapping",catalog)
                                     .option("hbase.spark.use.hbasecontext", false)
                                     .save()
                     )

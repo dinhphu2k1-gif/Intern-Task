@@ -131,7 +131,19 @@ public class CountDistinct {
     }
 
     public void countDistinctFromDB(String startTime, String endTime){
-        
+        Dataset<Row> df = spark
+                .read()
+                .format("org.apache.hadoop.hbase.spark")
+                .option("hbase.columns.mapping","day STRING, bannerId INT(11), guid_hll: BINARY")
+                .option("hbase.table", "logs")
+                .option("hbase.spark.use.hbasecontext", false)
+                .load();
+
+        df.filter(col("day").geq(startTime)).filter(col("day").lt(endTime));
+
+        df.select(col("bannerId"), hll_cardinality("guid_hll").as("count"))
+                .orderBy(desc("count"))
+                .show(false);
     }
 
     /**
