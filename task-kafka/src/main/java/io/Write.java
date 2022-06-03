@@ -68,24 +68,24 @@ public class Write {
         Read read = new Read(spark);
         Dataset<Row> df = read.readKafka();
 
+        String catalog = "{"
+                + "'table':{'namespace':'default', 'name':'logs'},"
+                + "'rowkey':'key',"
+                + "'columns':{"
+                + "'key':{'cf':'rowkey', 'col':'key', 'type':'int'},"
+                + "'day':{'cf':'logs', 'col':'day', 'type':'string'},"
+                + "'bannerId':{'cf':'logs', 'col':'bannerId', 'type':'int'},"
+                + "'guid_hll':{'cf':'logs', 'col':'guid_hll', 'type':'binary'}"
+                + "}"
+                + '}';
+
         Dataset<Row> oldDF = spark
                 .read()
                 .format("org.apache.hadoop.hbase.spark")
-                .option("hbase.columns.mapping","day STRING, bannerId INT(11), guid_hll: BINARY")
+                .option("hbase.columns.mapping",catalog)
                 .option("hbase.table", "logs")
                 .option("hbase.spark.use.hbasecontext", false)
                 .load();
-
-        String catalog = "{"
-         + "'table':{'namespace':'default', 'name':'logs'},"
-         + "'rowkey':'key',"
-         + "'columns':{"
-         + "'key':{'cf':'rowkey', 'col':'key', 'type':'int'},"
-         + "'day':{'cf':'logs', 'col':'day', 'type':'string'},"
-         + "'bannerId':{'cf':'logs', 'col':'bannerId', 'type':'int'},"
-         + "'guid_hll':{'cf':'logs', 'col':'guid_hll', 'type':'binary'}"
-         + "}"
-         + '}';
 
         try {
             df.coalesce(1).writeStream()
