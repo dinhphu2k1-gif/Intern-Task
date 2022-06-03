@@ -38,17 +38,13 @@ public class Write {
         Read read = new Read(spark);
         Dataset<Row> df = read.readKafka();
 
-        Properties properties = new Properties();
-        properties.setProperty("user", "root");
-        properties.setProperty("password", "123456");
-
         try {
             df.coalesce(1).writeStream()
                     .trigger(Trigger.ProcessingTime("2 minutes"))
 //                    .partitionBy("date")
-//                    .format("parquet")
-//                    .option("path", destinationPath)
-//                    .option("checkpointLocation", checkpoint)
+                    .format("parquet")
+                    .option("path", destinationPath)
+                    .option("checkpointLocation", checkpoint)
                     .outputMode("append")
                     .foreachBatch((VoidFunction2<Dataset<Row>, Long>) (batchDF, batchId) ->
                             batchDF.groupBy(col("day"), col("bannerId"))
@@ -58,13 +54,18 @@ public class Write {
                                     .agg(hll_merge("guid_hll")
                                             .as("guid_hll"))
                                     .write()
-                                    .format("jdbc")
-                                    .option("driver", "com.mysql.cj.jdbc.Driver")
-                                    .option("url", "jdbc:mysql://localhost:3306/task")
-                                    .option("dbtable", "logs")
-                                    .option("user", "root")
-                                    .option("password", "123456")
-                                    .mode("append")
+//                                    .format("jdbc")
+//                                    .option("driver", "com.mysql.cj.jdbc.Driver")
+//                                    .option("url", "jdbc:mysql://localhost:3306/task")
+//                                    .option("dbtable", "logs")
+//                                    .option("user", "root")
+//                                    .option("password", "123456")
+//                                    .mode("append")
+//                                    .save()
+                                    .format("org.apache.hadoop.hbase.spark")
+                                    .option("hbase.namespace", "default")
+                                    .option("hbase.table", "logs")
+                                    .option("hbase.spark.use.hbasecontext", false)
                                     .save()
                     )
                     .start()
