@@ -98,7 +98,7 @@ public class CountDistinct {
      * @param startTime : thời gian bắt đầu
      * @param endTime : thời gian kết thúc
      */
-    public void countDistinct(String startTime, String endTime) {
+    public void countDistinctFromHDFS(String startTime, String endTime) {
         List<String> list = this.getListFolder(startTime, endTime);
 
         Dataset<Row> newDF;
@@ -117,10 +117,8 @@ public class CountDistinct {
             newDF = newDF.unionByName(df);
             System.out.println("Finish file: " + dir);
         }
-//        newDF.show(false);
-        newDF = newDF.filter(col("time").geq(startTime)).filter(col("time").leq(endTime));
-//        newDF.show(false);
 
+        newDF = newDF.filter(col("time").geq(startTime)).filter(col("time").leq(endTime));
 
         Dataset<Row> resDF = newDF.groupBy("bannerId")
                 .agg(hll_init_agg("guid").as("guid_hll"))
@@ -132,6 +130,10 @@ public class CountDistinct {
                 .show(false);
     }
 
+    public void countDistinctFromDB(String startTime, String endTime){
+        
+    }
+
     /**
      *
      */
@@ -141,7 +143,7 @@ public class CountDistinct {
                 .master("yarn")
                 .getOrCreate();
 
-        this.countDistinct("2022-05-30 06:00:00", "2022-05-31 06:00:00");
+        this.countDistinctFromHDFS("2022-05-30 06:00:00", "2022-05-31 06:00:00");
     }
 
     /**

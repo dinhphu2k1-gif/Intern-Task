@@ -62,7 +62,7 @@ public class Write {
 //                                    .option("password", "123456")
 //                                    .mode("append")
 //                                    .save()
-                                    .format("org.apache.hadoop.hbase.spark")
+                                    .format("org.apache.spark.sql.execution.datasources.hbase")
                                     .option("hbase.namespace", "default")
                                     .option("hbase.table", "logs")
                                     .option("hbase.spark.use.hbasecontext", false)
