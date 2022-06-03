@@ -83,7 +83,7 @@ public class Write {
          + "'key':{'cf':'rowkey', 'col':'key', 'type':'int'},"
          + "'day':{'cf':'logs', 'col':'day', 'type':'string'},"
          + "'bannerId':{'cf':'logs', 'col':'bannerId', 'type':'int'},"
-         + "'mName':{'cf':'logs', 'col':'guid_hll', 'type':'binary'}"
+         + "'guid_hll':{'cf':'logs', 'col':'guid_hll', 'type':'binary'}"
          + "}"
          + '}';
 
@@ -124,7 +124,7 @@ public class Write {
                 .appName("Read write data")
                 .master("yarn")
                 .getOrCreate();
-        writeToHDFS();
+        writeToHbase();
     }
 
     /**
