@@ -184,15 +184,26 @@ public class CountDistinct {
     }
 
     /**
-     *
+     * Bắt đầu chạy chương trình
+     * @param function
+     * @param startTime
+     * @param endTime
      */
-    public void run() {
+    public void run(String function, String startTime, String endTime) {
         this.spark = SparkSession.builder()
                 .appName("Count distinct bannerId")
                 .master("yarn")
                 .getOrCreate();
 
-        this.countDistinctFromMysql("2022-06-04", "2022-06-05");
+        if (function == "mysql") {
+            countDistinctFromMysql(startTime, endTime);
+        }
+        else if (function == "hdfs") {
+            countDistinctFromHDFS(startTime, endTime);
+        }
+        else {
+            countDistinctFromHbase(startTime, endTime);
+        }
     }
 
     /**
@@ -201,6 +212,9 @@ public class CountDistinct {
      */
     public static void main(String[] args) {
         CountDistinct app = new CountDistinct();
-        app.run();
+        String function = args[0];
+        String startTime = args[1];
+        String endTime = args[2];
+        app.run(function, startTime, endTime);
     }
 }

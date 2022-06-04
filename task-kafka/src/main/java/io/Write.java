@@ -114,14 +114,14 @@ public class Write {
         Read read = new Read(spark);
         Dataset<Row> df = read.readKafka();
 
-        Dataset<Row> oldDF = spark.read()
-                .format("jdbc")
-                .option("driver", "com.mysql.cj.jdbc.Driver")
-                .option("url", "jdbc:mysql://10.3.105.61:3506/intern2022")
-                .option("dbtable", "logs")
-                .option("user", "phuld")
-                .option("password", "12012001")
-                .load();
+//        Dataset<Row> oldDF = spark.read()
+//                .format("jdbc")
+//                .option("driver", "com.mysql.cj.jdbc.Driver")
+//                .option("url", "jdbc:mysql://10.3.105.61:3506/intern2022")
+//                .option("dbtable", "logs")
+//                .option("user", "phuld")
+//                .option("password", "12012001")
+//                .load();
 
         try {
             df.coalesce(1).writeStream()
@@ -133,10 +133,10 @@ public class Write {
                                     .groupBy(col("day"), col("bannerId"))
                                     .agg(hll_merge("guid_hll")
                                             .as("guid_hll"))
-                                    .union(oldDF)
-                                    .groupBy(col("day"), col("bannerId"))
-                                    .agg(hll_merge("guid_hll")
-                                    .as("guid_hll"))
+//                                    .union(oldDF)
+//                                    .groupBy(col("day"), col("bannerId"))
+//                                    .agg(hll_merge("guid_hll")
+//                                    .as("guid_hll"))
                                     .write()
                                     .option("truncate", "true")
                                     .format("jdbc")
@@ -145,7 +145,7 @@ public class Write {
                                     .option("dbtable", "logs")
                                     .option("user", "phuld")
                                     .option("password", "12012001")
-                                    .mode("overwrite")
+                                    .mode("append")
                                     .save()
                     )
 //                    .outputMode("append")
@@ -158,17 +158,24 @@ public class Write {
     }
 
     /**
-     * Bắt đầu chạy chương trình.
+     * Bắt đầu chạy chương trình
+     * @param function : xác định hàm chức năng nào sẽ được chạy
      */
-    public void run() {
+    public void run(String function) {
         this.spark = SparkSession
                 .builder()
                 .appName("Read write data")
                 .master("yarn")
                 .getOrCreate();
-//        writeToHbase();
-//        writeToHDFS();
-        writeToMysql();
+        if (function == "mysql") {
+            writeToMysql();
+        }
+        else if (function == "hdfs") {
+            writeToHDFS();
+        }
+        else {
+            writeToHbase();
+        }
     }
 
     /**
@@ -178,6 +185,6 @@ public class Write {
      */
     public static void main(String[] args) {
         Write write = new Write();
-        write.run();
+        write.run(args[0]);
     }
 }
