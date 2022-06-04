@@ -1,6 +1,5 @@
 package io;
 
-import org.apache.hadoop.hbase.spark.datasources.HBaseTableCatalog;
 import org.apache.spark.api.java.function.VoidFunction2;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -32,7 +31,7 @@ public class Write {
 
     /**
      * Ghi dữ liệu đọc được từ Kafka vào HDFS.
-     * Cứ sau 30p sẽ cập nhật dữ liệu từ Kafka 1 lần
+     * Cứ sau 1 giờ sẽ cập nhật dữ liệu từ Kafka 1 lần
      */
     public void writeToHDFS() {
         Read read = new Read(spark);
@@ -40,7 +39,7 @@ public class Write {
 
         try {
             df.coalesce(1).writeStream()
-                    .trigger(Trigger.ProcessingTime("1 hours"))
+                    .trigger(Trigger.ProcessingTime("1 hour"))
                     .foreachBatch((VoidFunction2<Dataset<Row>, Long>) (batchDF, batchId) ->
                             batchDF.groupBy(col("day"), col("bannerId"))
                                     .agg(hll_init_agg("guid")
@@ -124,7 +123,8 @@ public class Write {
                 .appName("Read write data")
                 .master("yarn")
                 .getOrCreate();
-        writeToHbase();
+//        writeToHbase();
+        writeToHDFS();
     }
 
     /**
