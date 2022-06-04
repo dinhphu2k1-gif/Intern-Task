@@ -33,7 +33,7 @@ Chạy file bash:
 # 3. Đếm số lượng user
 Xem kết quả:
 
-```
+```aidl
 ./count.sh
 ```
 
@@ -42,6 +42,6 @@ Xem kết quả:
 
 
 Note: Trước khi chạy lệnh các lệnh bash ở trên, chúng ta phải build thành file jar with dependencies
-```
+```aidl
 ./build.sh
 ```

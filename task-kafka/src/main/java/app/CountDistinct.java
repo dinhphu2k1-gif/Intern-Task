@@ -117,10 +117,8 @@ public class CountDistinct {
             newDF = newDF.unionByName(df);
             System.out.println("Finish file: " + dir);
         }
-//        newDF.show(false);
-        newDF = newDF.filter(col("time").geq(startTime)).filter(col("time").leq(endTime));
-//        newDF.show(false);
 
+        newDF = newDF.filter(col("time").geq(startTime).leq(endTime));
 
         Dataset<Row> resDF = newDF.groupBy("bannerId")
                 .agg(hll_init_agg("guid").as("guid_hll"))
