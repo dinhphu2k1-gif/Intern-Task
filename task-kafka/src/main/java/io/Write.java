@@ -35,7 +35,7 @@ public class Write {
         try {
             df.coalesce(1).writeStream()
                     .trigger(Trigger.ProcessingTime("30 minutes"))
-                    .partitionBy("date")
+                    .partitionBy("day")
                     .format("parquet")
                     .option("path", destinationPath)
                     .option("checkpointLocation", checkpoint)
