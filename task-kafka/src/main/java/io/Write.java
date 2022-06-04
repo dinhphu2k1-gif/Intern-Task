@@ -91,9 +91,8 @@ public class Write {
 
     /**
      * Bắt đầu chạy chương trình
-     * @param function
      */
-    public void run(String function) {
+    public void run() {
         this.spark = SparkSession
                 .builder()
                 .config("spark.shuffle.blockTransferService", "nio")
@@ -101,12 +100,7 @@ public class Write {
                 .master("yarn")
                 .getOrCreate();
 
-        if (function == "mysql") {
             writeToMysql();
-        }
-        else if (function == "hdfs") {
-            writeToHDFS();
-        }
     }
 
     /**
@@ -116,7 +110,6 @@ public class Write {
     public static void main(String[] args) {
         Write write = new Write();
 
-        String function = args[0];
-        write.run(function);
+        write.run();
     }
 }
