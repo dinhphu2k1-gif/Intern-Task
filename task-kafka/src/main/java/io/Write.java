@@ -185,6 +185,8 @@ public class Write {
      */
     public static void main(String[] args) {
         Write write = new Write();
-        write.run(args[0]);
+
+        String function = args[0];
+        write.run(function);
     }
 }
