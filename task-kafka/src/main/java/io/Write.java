@@ -167,7 +167,8 @@ public class Write {
                 .master("yarn")
                 .getOrCreate();
 //        writeToHbase();
-        writeToHDFS();
+//        writeToHDFS();
+        writeToMysql();
     }
 
     /**
