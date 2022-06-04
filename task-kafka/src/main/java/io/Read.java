@@ -57,7 +57,7 @@ public class Read {
                 .format("kafka")
                 .option("kafka.bootstrap.servers", kafkaServers)
                 .option("subscribe", topic)
-//                .option("startingOffsets", "earliest")
+                .option("failOnDataLoss", "false")
                 .load()
                 .selectExpr("CAST(value AS STRING) AS value");
 
