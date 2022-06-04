@@ -125,7 +125,7 @@ public class Write {
 
         try {
             df.coalesce(1).writeStream()
-                    .trigger(Trigger.ProcessingTime("5 minutes"))
+                    .trigger(Trigger.ProcessingTime("1 hour"))
                     .foreachBatch((VoidFunction2<Dataset<Row>, Long>) (batchDF, batchId) ->
                             batchDF.groupBy(col("day"), col("bannerId"))
                                     .agg(hll_init_agg("guid")
