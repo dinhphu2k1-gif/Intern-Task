@@ -119,8 +119,8 @@ public class Write {
                 .option("driver", "com.mysql.cj.jdbc.Driver")
                 .option("url", "jdbc:mysql://10.3.105.61:3506/intern2022")
                 .option("dbtable", "logs")
-                .option("user", "root")
-                .option("password", "123456")
+                .option("user", "phuld")
+                .option("password", "12012001")
                 .load();
 
         try {
@@ -143,8 +143,8 @@ public class Write {
                                     .option("driver", "com.mysql.cj.jdbc.Driver")
                                     .option("url", "jdbc:mysql://10.3.105.61:3506/intern2022")
                                     .option("dbtable", "logs")
-                                    .option("user", "root")
-                                    .option("password", "123456")
+                                    .option("user", "phuld")
+                                    .option("password", "12012001")
                                     .mode("overwrite")
                                     .save()
                     )
