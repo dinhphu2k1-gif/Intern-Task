@@ -53,59 +53,59 @@ public class Write {
 
     }
 
-    /**
-     * Ghi dữ liệu từ Kafka vào Hbase
-     */
-    public void writeToHbase() {
-        Read read = new Read(spark);
-        Dataset<Row> df = read.readKafka();
-
-        String catalog = "{"
-                + "'table':{'namespace':'default', 'name':'logs'},"
-                + "'rowkey':'key',"
-                + "'columns':{"
-                + "'key':{'cf':'rowkey', 'col':'key', 'type':'int'},"
-                + "'day':{'cf':'logs', 'col':'day', 'type':'string'},"
-                + "'bannerId':{'cf':'logs', 'col':'bannerId', 'type':'int'},"
-                + "'guid_hll':{'cf':'logs', 'col':'guid_hll', 'type':'binary'}"
-                + "}"
-                + '}';
-
-        Dataset<Row> oldDF = spark
-                .read()
-                .format("org.apache.hadoop.hbase.spark")
-                .option("hbase.columns.mapping",catalog)
-                .option("hbase.table", "logs")
-                .option("hbase.spark.use.hbasecontext", false)
-                .load();
-
-        try {
-            df.coalesce(1).writeStream()
-                    .trigger(Trigger.ProcessingTime("2 minutes"))
-                    .outputMode("append")
-                    .foreachBatch((VoidFunction2<Dataset<Row>, Long>) (batchDF, batchId) ->
-                            batchDF.groupBy(col("day"), col("bannerId"))
-                                    .agg(hll_init_agg("guid")
-                                            .as("guid_hll"))
-                                    .groupBy(col("day"), col("bannerId"))
-                                    .agg(hll_merge("guid_hll")
-                                            .as("guid_hll"))
-                                    .union(oldDF)
-                                    .groupBy(col("day"), col("bannerId"))
-                                    .agg(hll_merge("guid_hll")
-                                            .as("guid_hll"))
-                                    .write()
-                                    .format("org.apache.hadoop.hbase.spark")
-                                    .option("hbase.columns.mapping",catalog)
-                                    .option("hbase.spark.use.hbasecontext", false)
-                                    .save()
-                    )
-                    .start()
-                    .awaitTermination();
-        } catch (TimeoutException | StreamingQueryException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    /**
+//     * Ghi dữ liệu từ Kafka vào Hbase
+//     */
+//    public void writeToHbase() {
+//        Read read = new Read(spark);
+//        Dataset<Row> df = read.readKafka();
+//
+//        String catalog = "{"
+//                + "'table':{'namespace':'default', 'name':'logs'},"
+//                + "'rowkey':'key',"
+//                + "'columns':{"
+//                + "'key':{'cf':'rowkey', 'col':'key', 'type':'int'},"
+//                + "'day':{'cf':'logs', 'col':'day', 'type':'string'},"
+//                + "'bannerId':{'cf':'logs', 'col':'bannerId', 'type':'int'},"
+//                + "'guid_hll':{'cf':'logs', 'col':'guid_hll', 'type':'binary'}"
+//                + "}"
+//                + '}';
+//
+//        Dataset<Row> oldDF = spark
+//                .read()
+//                .format("org.apache.hadoop.hbase.spark")
+//                .option("hbase.columns.mapping",catalog)
+//                .option("hbase.table", "logs")
+//                .option("hbase.spark.use.hbasecontext", false)
+//                .load();
+//
+//        try {
+//            df.coalesce(1).writeStream()
+//                    .trigger(Trigger.ProcessingTime("2 minutes"))
+//                    .outputMode("append")
+//                    .foreachBatch((VoidFunction2<Dataset<Row>, Long>) (batchDF, batchId) ->
+//                            batchDF.groupBy(col("day"), col("bannerId"))
+//                                    .agg(hll_init_agg("guid")
+//                                            .as("guid_hll"))
+//                                    .groupBy(col("day"), col("bannerId"))
+//                                    .agg(hll_merge("guid_hll")
+//                                            .as("guid_hll"))
+//                                    .union(oldDF)
+//                                    .groupBy(col("day"), col("bannerId"))
+//                                    .agg(hll_merge("guid_hll")
+//                                            .as("guid_hll"))
+//                                    .write()
+//                                    .format("org.apache.hadoop.hbase.spark")
+//                                    .option("hbase.columns.mapping",catalog)
+//                                    .option("hbase.spark.use.hbasecontext", false)
+//                                    .save()
+//                    )
+//                    .start()
+//                    .awaitTermination();
+//        } catch (TimeoutException | StreamingQueryException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     /**
      *
@@ -173,9 +173,9 @@ public class Write {
         else if (function == "hdfs") {
             writeToHDFS();
         }
-        else {
-            writeToHbase();
-        }
+//        else {
+//            writeToHbase();
+//        }
     }
 
     /**

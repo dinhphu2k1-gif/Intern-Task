@@ -130,37 +130,37 @@ public class CountDistinct {
                 .show(false);
     }
 
-    /**
-     *
-     * @param startTime
-     * @param endTime
-     */
-    public void countDistinctFromHbase(String startTime, String endTime){
-        String catalog = "{"
-                + "'table':{'namespace':'default', 'name':'logs'},"
-                + "'rowkey':'key',"
-                + "'columns':{"
-                + "'key':{'cf':'rowkey', 'col':'key', 'type':'int'},"
-                + "'day':{'cf':'logs', 'col':'day', 'type':'string'},"
-                + "'bannerId':{'cf':'logs', 'col':'bannerId', 'type':'int'},"
-                + "'guid_hll':{'cf':'logs', 'col':'guid_hll', 'type':'binary'}"
-                + "}"
-                + '}';
-
-        Dataset<Row> df = spark
-                .read()
-                .format("org.apache.hadoop.hbase.spark")
-                .option("hbase.columns.mapping",catalog)
-                .option("hbase.table", "logs")
-                .option("hbase.spark.use.hbasecontext", false)
-                .load();
-
-        df.filter(col("day").geq(startTime)).filter(col("day").lt(endTime));
-
-        df.select(col("bannerId"), hll_cardinality("guid_hll").as("count"))
-                .orderBy(desc("count"))
-                .show(false);
-    }
+//    /**
+//     *
+//     * @param startTime
+//     * @param endTime
+//     */
+//    public void countDistinctFromHbase(String startTime, String endTime){
+//        String catalog = "{"
+//                + "'table':{'namespace':'default', 'name':'logs'},"
+//                + "'rowkey':'key',"
+//                + "'columns':{"
+//                + "'key':{'cf':'rowkey', 'col':'key', 'type':'int'},"
+//                + "'day':{'cf':'logs', 'col':'day', 'type':'string'},"
+//                + "'bannerId':{'cf':'logs', 'col':'bannerId', 'type':'int'},"
+//                + "'guid_hll':{'cf':'logs', 'col':'guid_hll', 'type':'binary'}"
+//                + "}"
+//                + '}';
+//
+//        Dataset<Row> df = spark
+//                .read()
+//                .format("org.apache.hadoop.hbase.spark")
+//                .option("hbase.columns.mapping",catalog)
+//                .option("hbase.table", "logs")
+//                .option("hbase.spark.use.hbasecontext", false)
+//                .load();
+//
+//        df.filter(col("day").geq(startTime)).filter(col("day").lt(endTime));
+//
+//        df.select(col("bannerId"), hll_cardinality("guid_hll").as("count"))
+//                .orderBy(desc("count"))
+//                .show(false);
+//    }
 
     /**
      *
@@ -201,9 +201,9 @@ public class CountDistinct {
         else if (function == "hdfs") {
             countDistinctFromHDFS(startTime, endTime);
         }
-        else {
-            countDistinctFromHbase(startTime, endTime);
-        }
+//        else {
+//            countDistinctFromHbase(startTime, endTime);
+//        }
     }
 
     /**
