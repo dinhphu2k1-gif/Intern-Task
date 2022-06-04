@@ -96,6 +96,7 @@ public class Write {
     public void run(String function) {
         this.spark = SparkSession
                 .builder()
+                .config("spark.shuffle.blockTransferService", "nio")
                 .appName("Read write data")
                 .master("yarn")
                 .getOrCreate();
