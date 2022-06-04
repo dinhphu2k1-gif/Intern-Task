@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.swoop.alchemy.spark.expressions.hll.functions.hll_init_agg;
 import static com.swoop.alchemy.spark.expressions.hll.functions.hll_merge;
 import static com.swoop.alchemy.spark.expressions.hll.functions.hll_cardinality;
 import static org.apache.spark.sql.functions.col;
@@ -98,7 +97,7 @@ public class CountDistinct {
      * @param startTime : thời gian bắt đầu
      * @param endTime : thời gian kết thúc
      */
-    public void countDistinct(String startTime, String endTime) {
+    public void countDistinctFromHDFS(String startTime, String endTime) {
         List<String> list = this.getListFolder(startTime, endTime);
 
         Dataset<Row> newDF;
@@ -117,14 +116,11 @@ public class CountDistinct {
             newDF = newDF.unionByName(df);
             System.out.println("Finish file: " + dir);
         }
-//        newDF.show(false);
+
         newDF = newDF.filter(col("time").geq(startTime)).filter(col("time").leq(endTime));
-//        newDF.show(false);
 
-
-        Dataset<Row> resDF = newDF.groupBy("bannerId")
-                .agg(hll_init_agg("guid").as("guid_hll"))
-                .groupBy("bannerId")
+        Dataset<Row> resDF = newDF
+                .groupBy(col("day"), col("bannerId"))
                 .agg(hll_merge("guid_hll").as("guid_hll"));
 
         resDF.select(col("bannerId"), hll_cardinality("guid_hll").as("count"))
@@ -134,14 +130,40 @@ public class CountDistinct {
 
     /**
      *
+     * @param startTime
+     * @param endTime
      */
-    public void run() {
+    public void countDistinctFromMysql(String startTime, String endTime){
+        Dataset<Row> df = spark.read()
+                .format("jdbc")
+                .option("driver", "com.mysql.cj.jdbc.Driver")
+                .option("url", "jdbc:mysql://10.3.105.61:3506/intern2022")
+                .option("dbtable", "logs")
+                .option("user", "phuld")
+                .option("password", "12012001")
+                .load();
+
+        String contition = String.format("day <= {} and day > {}", startTime, endTime);
+        df.filter(contition)
+                .select(col("bannerId"), hll_cardinality("guid_hll").as("count"))
+                .show(false);
+    }
+
+    /**
+     *
+     */
+    public void run(String function, String startTime, String endTime) {
         this.spark = SparkSession.builder()
                 .appName("Count distinct bannerId")
                 .master("yarn")
                 .getOrCreate();
 
-        this.countDistinct("2022-05-30 06:00:00", "2022-05-31 06:00:00");
+        if (function == "mysql") {
+            countDistinctFromMysql(startTime, endTime);
+        }
+        else if (function == "hdfs") {
+            countDistinctFromHDFS(startTime, endTime);
+        }
     }
 
     /**
@@ -150,6 +172,10 @@ public class CountDistinct {
      */
     public static void main(String[] args) {
         CountDistinct app = new CountDistinct();
-        app.run();
+
+        String function = args[0];
+        String startTime = args[1];
+        String endTime = args[2];
+        app.run(function, startTime, endTime);
     }
 }

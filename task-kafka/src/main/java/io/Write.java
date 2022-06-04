@@ -11,7 +11,6 @@ import static org.apache.spark.sql.functions.col;
 import static com.swoop.alchemy.spark.expressions.hll.functions.hll_init_agg;
 import static com.swoop.alchemy.spark.expressions.hll.functions.hll_merge;
 
-import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
 public class Write {
@@ -32,7 +31,7 @@ public class Write {
 
     /**
      * Ghi dữ liệu đọc được từ Kafka vào HDFS.
-     * Cứ sau 30p sẽ cập nhật dữ liệu từ Kafka 1 lần
+     * Cứ sau 1 giờ sẽ cập nhật dữ liệu từ Kafka 1 lần
      */
     public void writeToHDFS() {
         Read read = new Read(spark);
@@ -40,34 +39,12 @@ public class Write {
 
         try {
             df.coalesce(1).writeStream()
-                    .trigger(Trigger.ProcessingTime("2 minutes"))
-//                    .partitionBy("date")
+                    .trigger(Trigger.ProcessingTime("1 hour"))
+                    .partitionBy("day")
                     .format("parquet")
                     .option("path", destinationPath)
                     .option("checkpointLocation", checkpoint)
                     .outputMode("append")
-                    .foreachBatch((VoidFunction2<Dataset<Row>, Long>) (batchDF, batchId) ->
-                            batchDF.groupBy(col("day"), col("bannerId"))
-                                    .agg(hll_init_agg("guid")
-                                            .as("guid_hll"))
-                                    .groupBy(col("day"), col("bannerId"))
-                                    .agg(hll_merge("guid_hll")
-                                            .as("guid_hll"))
-                                    .write()
-//                                    .format("jdbc")
-//                                    .option("driver", "com.mysql.cj.jdbc.Driver")
-//                                    .option("url", "jdbc:mysql://localhost:3306/task")
-//                                    .option("dbtable", "logs")
-//                                    .option("user", "root")
-//                                    .option("password", "123456")
-//                                    .mode("append")
-//                                    .save()
-                                    .format("org.apache.hadoop.hbase.spark")
-                                    .option("hbase.namespace", "default")
-                                    .option("hbase.table", "logs")
-                                    .option("hbase.spark.use.hbasecontext", false)
-                                    .save()
-                    )
                     .start()
                     .awaitTermination();
         } catch (TimeoutException | StreamingQueryException e) {
@@ -76,15 +53,57 @@ public class Write {
     }
 
     /**
+     *
+     */
+    public void writeToMysql(){
+        Read read = new Read(spark);
+        Dataset<Row> df = read.readKafka();
+
+        try {
+            df.coalesce(1).writeStream()
+                    .trigger(Trigger.ProcessingTime("1 hour"))
+                    .foreachBatch((VoidFunction2<Dataset<Row>, Long>) (batchDF, batchId) ->
+                                    batchDF.groupBy(col("day"), col("bannerId"))
+                                            .agg(hll_init_agg("guid")
+                                                    .as("guid_hll"))
+                                            .groupBy(col("day"), col("bannerId"))
+                                            .agg(hll_merge("guid_hll")
+                                                    .as("guid_hll"))
+                                            .write()
+                                            .option("truncate", "true")
+                                            .format("jdbc")
+                                            .option("driver", "com.mysql.cj.jdbc.Driver")
+                                            .option("url", "jdbc:mysql://10.3.105.61:3506/intern2022")
+                                            .option("dbtable", "logs")
+                                            .option("user", "phuld")
+                                            .option("password", "12012001")
+                                            .mode("append")
+                                            .save()
+                    )
+//                    .outputMode("append")
+                    .start()
+                    .awaitTermination();
+        } catch (TimeoutException | StreamingQueryException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    /**
      * Bắt đầu chạy chương trình.
      */
-    public void run() {
+    public void run(String function) {
         this.spark = SparkSession
                 .builder()
                 .appName("Read write data")
                 .master("yarn")
                 .getOrCreate();
-        writeToHDFS();
+        if (function == "mysql") {
+            writeToMysql();
+        }
+        else if (function == "hdfs") {
+            writeToHDFS();
+        }
     }
 
     /**
@@ -94,6 +113,7 @@ public class Write {
      */
     public static void main(String[] args) {
         Write write = new Write();
-        write.run();
+        String function = args[0];
+        write.run(function);
     }
 }

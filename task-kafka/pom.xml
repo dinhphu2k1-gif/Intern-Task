@@ -88,13 +88,6 @@
       <artifactId>hll</artifactId>
       <version>1.6.0</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/org.apache.hbase.connectors.spark/hbase-spark -->
-    <dependency>
-      <groupId>org.apache.hbase.connectors.spark</groupId>
-      <artifactId>hbase-spark</artifactId>
-      <version>1.0.0</version>
-    </dependency>
-
     <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
     <dependency>
       <groupId>mysql</groupId>
@@ -107,13 +100,6 @@
       <artifactId>protobuf-java</artifactId>
       <version>3.11.4</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.hbase.connectors.spark</groupId>
-      <artifactId>hbase-spark</artifactId>
-      <version>1.0.0</version>
-    </dependency>
-
-
 
   </dependencies>
 
