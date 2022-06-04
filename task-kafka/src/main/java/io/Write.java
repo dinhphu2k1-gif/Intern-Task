@@ -22,7 +22,7 @@ public class Write {
     /**
      * Lưu giữ các điểm kiểm tra phục vụ cho việc phục hồi dữ liệu.
      */
-    private final String checkpoint = "/tmp/sparkcheckpoint1/";
+    private final String checkpoint = "/tmp/sparkcheckpoint1";
 
     /**
      * SparkSession.
@@ -40,14 +40,7 @@ public class Write {
         try {
             df.coalesce(1).writeStream()
                     .trigger(Trigger.ProcessingTime("1 hour"))
-                    .foreachBatch((VoidFunction2<Dataset<Row>, Long>) (batchDF, batchId) ->
-                            batchDF.groupBy(col("day"), col("bannerId"))
-                                    .agg(hll_init_agg("guid")
-                                            .as("guid_hll"))
-                                    .groupBy(col("day"), col("bannerId"))
-                                    .agg(hll_merge("guid_hll")
-                                            .as("guid_hll"))
-                    )
+                    .partitionBy("day")
                     .format("parquet")
                     .option("path", destinationPath)
                     .option("checkpointLocation", checkpoint)
@@ -112,6 +105,56 @@ public class Write {
         } catch (TimeoutException | StreamingQueryException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     *
+     */
+    public void writeToMysql(){
+        Read read = new Read(spark);
+        Dataset<Row> df = read.readKafka();
+
+        Dataset<Row> oldDF = spark.read()
+                .format("jdbc")
+                .option("driver", "com.mysql.cj.jdbc.Driver")
+                .option("url", "jdbc:mysql://10.3.105.61:3506/intern2022")
+                .option("dbtable", "logs")
+                .option("user", "root")
+                .option("password", "123456")
+                .load();
+
+        try {
+            df.coalesce(1).writeStream()
+                    .trigger(Trigger.ProcessingTime("5 minutes"))
+                    .foreachBatch((VoidFunction2<Dataset<Row>, Long>) (batchDF, batchId) ->
+                            batchDF.groupBy(col("day"), col("bannerId"))
+                                    .agg(hll_init_agg("guid")
+                                            .as("guid_hll"))
+                                    .groupBy(col("day"), col("bannerId"))
+                                    .agg(hll_merge("guid_hll")
+                                            .as("guid_hll"))
+                                    .union(oldDF)
+                                    .groupBy(col("day"), col("bannerId"))
+                                    .agg(hll_merge("guid_hll")
+                                    .as("guid_hll"))
+                                    .write()
+                                    .option("truncate", "true")
+                                    .format("jdbc")
+                                    .option("driver", "com.mysql.cj.jdbc.Driver")
+                                    .option("url", "jdbc:mysql://10.3.105.61:3506/intern2022")
+                                    .option("dbtable", "logs")
+                                    .option("user", "root")
+                                    .option("password", "123456")
+                                    .mode("overwrite")
+                                    .save()
+                    )
+//                    .outputMode("append")
+                    .start()
+                    .awaitTermination();
+        } catch (TimeoutException | StreamingQueryException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     /**
