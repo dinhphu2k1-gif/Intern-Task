@@ -130,7 +130,12 @@ public class CountDistinct {
                 .show(false);
     }
 
-    public void countDistinctFromDB(String startTime, String endTime){
+    /**
+     *
+     * @param startTime
+     * @param endTime
+     */
+    public void countDistinctFromHbase(String startTime, String endTime){
         String catalog = "{"
                 + "'table':{'namespace':'default', 'name':'logs'},"
                 + "'rowkey':'key',"
@@ -159,6 +164,27 @@ public class CountDistinct {
 
     /**
      *
+     * @param startTime
+     * @param endTime
+     */
+    public void countDistinctFromMysql(String startTime, String endTime){
+        Dataset<Row> df = spark.read()
+                .format("jdbc")
+                .option("driver", "com.mysql.cj.jdbc.Driver")
+                .option("url", "jdbc:mysql://10.3.105.61:3506/intern2022")
+                .option("dbtable", "logs")
+                .option("user", "phuld")
+                .option("password", "12012001")
+                .load();
+
+        String contition = String.format("day <= {} and day > {}", startTime, endTime);
+        df.filter(contition)
+                .select(col("bannerId"), hll_cardinality("guid_hll").as("count"))
+                .show(false);
+    }
+
+    /**
+     *
      */
     public void run() {
         this.spark = SparkSession.builder()
@@ -166,7 +192,7 @@ public class CountDistinct {
                 .master("yarn")
                 .getOrCreate();
 
-        this.countDistinctFromHDFS("2022-05-30 06:00:00", "2022-05-31 06:00:00");
+        this.countDistinctFromMysql("2022-06-04", "2022-06-05");
     }
 
     /**
