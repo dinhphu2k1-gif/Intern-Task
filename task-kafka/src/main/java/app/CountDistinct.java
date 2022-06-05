@@ -111,6 +111,8 @@ public class CountDistinct {
             System.out.println("Finish file: " + dir);
         }
 
+        newDF.show();
+
         Dataset<Row> resDF = newDF.groupBy("bannerId")
                 .agg(hll_init_agg("guid").as("guid_hll"))
                 .groupBy("bannerId")
@@ -136,6 +138,8 @@ public class CountDistinct {
                 .option("password", "12012001")
                 .load();
 
+        df.show();
+
         String contition = String.format("day <= %s and day > %s", startTime, endTime);
         df.filter(contition)
                 .select(col("bannerId"), hll_cardinality("guid_hll").as("count"))
@@ -150,6 +154,7 @@ public class CountDistinct {
                 .appName("Count distinct bannerId")
                 .master("yarn")
                 .getOrCreate();
+        this.spark.sparkContext().setLogLevel("ERROR");
 
         System.out.println("From Mysql");
         countDistinctFromMysql(startTime, endTIme);
