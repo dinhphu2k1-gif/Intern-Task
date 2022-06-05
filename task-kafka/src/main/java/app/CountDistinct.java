@@ -119,7 +119,7 @@ public class CountDistinct {
                 .show();
 
         long t1 = System.nanoTime();
-        System.out.println("Execution time: " + TimeUnit.NANOSECONDS.toSeconds(t1 - t0) + "\n");
+        System.out.println("Execution time: " + TimeUnit.NANOSECONDS.toSeconds(t1 - t0) + "s\n");
 
         System.out.println("Count using Hyperloglog");
         Dataset<Row> resDF = newDF.groupBy(col("bannerId"))
@@ -132,7 +132,7 @@ public class CountDistinct {
                 .show(false);
 
         long t2 = System.nanoTime();
-        System.out.println("Execution time: " + TimeUnit.NANOSECONDS.toSeconds(t2 - t1) + "\n");
+        System.out.println("Execution time: " + TimeUnit.NANOSECONDS.toSeconds(t2 - t1) + "s\n");
     }
 
     /**
@@ -159,7 +159,7 @@ public class CountDistinct {
                 .show(false);
 
         long t1 = System.nanoTime();
-        System.out.println("Execution time: " + TimeUnit.NANOSECONDS.toSeconds(t1 - t0) + "\n");
+        System.out.println("Execution time: " + TimeUnit.NANOSECONDS.toSeconds(t1 - t0) + "s\n");
     }
 
     /**
