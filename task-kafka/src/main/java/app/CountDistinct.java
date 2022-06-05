@@ -113,9 +113,9 @@ public class CountDistinct {
 
 //        newDF.show();
 
-        Dataset<Row> resDF = newDF.groupBy("bannerId")
+        Dataset<Row> resDF = newDF.groupBy(col("day"), col("bannerId"))
                 .agg(hll_init_agg("guid").as("guid_hll"))
-                .groupBy("bannerId")
+                .groupBy(col("day"), col("bannerId"))
                 .agg(hll_merge("guid_hll").as("guid_hll"));
 
         resDF.select(col("bannerId"), hll_cardinality("guid_hll").as("count"))
@@ -138,7 +138,7 @@ public class CountDistinct {
                 .option("password", "12012001")
                 .load();
 
-//        df.show();
+        df.show();
 
         String contition = String.format("day <= %s and day > %s", startTime, endTime);
         df.filter(contition)
