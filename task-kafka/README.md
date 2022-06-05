@@ -45,9 +45,12 @@ Note: startTime và endTime là khoảng thời gian tùy chọn, điền theo f
 
 - Chương trình sử dụng thuật toán HyperLogLog để đạt được hiệu suất cao hơn và ít tài nguyên hơn
 - Sai số của thuật toán nằm trong khoảng 1%
-- Kết quả không sử dụng HyperLogLog
-![image](not_HyperLogLog.png)
-- Kết quả 
+- Kết quả không sử dụng HyperLogLog từ HDFS
+![image](img.png)
+- Kết quả sử dụng HyperLogLog từ HDFS
+![image](img_1.png)
+- Kết quả sử dụng HyperLogLog từ Mysql
+![image](result_mysql.png)
 
 
 Note: Trước khi chạy lệnh các lệnh bash ở trên, chúng ta phải build thành file jar with dependencies
