@@ -22,8 +22,7 @@ import java.util.List;
 import static com.swoop.alchemy.spark.expressions.hll.functions.hll_init_agg;
 import static com.swoop.alchemy.spark.expressions.hll.functions.hll_merge;
 import static com.swoop.alchemy.spark.expressions.hll.functions.hll_cardinality;
-import static org.apache.spark.sql.functions.col;
-import static org.apache.spark.sql.functions.desc;
+import static org.apache.spark.sql.functions.*;
 import static org.apache.spark.sql.types.DataTypes.*;
 
 public class CountDistinct {
@@ -106,10 +105,15 @@ public class CountDistinct {
 
         for (String dir : list) {
             Dataset<Row> df = this.spark.read().format("parquet").load(dir);
-//            df.printSchema();
             newDF = newDF.union(df);
 //            System.out.println("Finish file: " + dir);
         }
+
+        System.out.println("Count not using HyperLogLog");
+        newDF.groupBy("bannerId")
+                .agg(count_distinct(col("guid")).as("count"))
+                .show();
+
 
         Dataset<Row> resDF = newDF.groupBy(col("bannerId"))
                 .agg(hll_init_agg("guid").as("guid_hll"))
@@ -136,7 +140,7 @@ public class CountDistinct {
                 .option("password", "12012001")
                 .load();
 
-//        df.show();
+        df.show();
 
         df.filter(col("Day").geq(startTime)).filter(col("Day").lt(endTime))
                 .groupBy(col("Day"), col("bannerId"))
