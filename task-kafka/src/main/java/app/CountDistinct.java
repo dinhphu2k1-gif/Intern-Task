@@ -89,7 +89,7 @@ public class CountDistinct {
     }
 
     /**
-     * Đếm số lượng user theo từng banner trong một Khoảng thời gian cụ thể.
+     * Đếm số lượng user theo từng banner trong một Khoảng thời gian cụ thể từ HDFS.
      * @param startTime : thời gian bắt đầu
      * @param endTime : thời gian kết thúc
      */
@@ -136,7 +136,7 @@ public class CountDistinct {
     }
 
     /**
-     *
+     *  Đếm số lượng user theo từng banner trong một Khoảng thời gian cụ thể từ Mysql.
      * @param startTime
      * @param endTime
      */

@@ -53,7 +53,7 @@ public class Write {
     }
 
     /**
-     *
+     *  Ghi dữ liệu từ Kafka vào Mysql
      */
     public void writeToMysql(){
         Read read = new Read(spark);
