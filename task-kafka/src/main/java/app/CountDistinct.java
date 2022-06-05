@@ -108,10 +108,10 @@ public class CountDistinct {
             Dataset<Row> df = this.spark.read().format("parquet").load(dir);
 
             newDF = newDF.unionByName(df);
-            System.out.println("Finish file: " + dir);
+//            System.out.println("Finish file: " + dir);
         }
 
-        newDF.show();
+//        newDF.show();
 
         Dataset<Row> resDF = newDF.groupBy("bannerId")
                 .agg(hll_init_agg("guid").as("guid_hll"))
@@ -138,7 +138,7 @@ public class CountDistinct {
                 .option("password", "12012001")
                 .load();
 
-        df.show();
+//        df.show();
 
         String contition = String.format("day <= %s and day > %s", startTime, endTime);
         df.filter(contition)
@@ -173,7 +173,6 @@ public class CountDistinct {
 
         String startTime = args[0];
         String endTime = args[1];
-        System.out.println(startTime + " " + endTime);
         app.run(startTime, endTime);
     }
 }

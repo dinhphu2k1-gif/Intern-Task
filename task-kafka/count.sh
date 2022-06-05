@@ -1,1 +1,1 @@
-  spark-submit --class app.CountDistinct --master yarn --deploy-mode client --num-executors 2 --executor-memory 2g --executor-cores 2 --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.1 target/task-kafka-1.0-SNAPSHOT-jar-with-dependencies.jar 2022-06-04 2022-06-05
+  spark-submit --class app.CountDistinct --master yarn --deploy-mode client --num-executors 2 --executor-memory 2g --executor-cores 2 --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.1 target/task-kafka-1.0-SNAPSHOT-jar-with-dependencies.jar 2022-06-05 2022-06-06
