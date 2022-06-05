@@ -30,10 +30,11 @@ Chạy file bash:
 - Lọc dữ liệu từ trường value trong mỗi message
 - Ép kiểu dữ liệu thành String và tách các trường bằng kí tự phân tách "\t"
 - Dữ liệu ghi vào HDFS sẽ được phân chia theo từng ngày
-    ![imae](hdfs.png)
+    ![imae](image/hdfs.png)
 - Dữ liệu ghi vào Mysql sẽ được ghi tập trung vào 1 bảng duy nhất - table logs
-  ![image](desc_logs.png)
-  ![image](data_at_mysql.png)
+  ![image](image/desc_logs.png)
+
+  ![image](image/data_at_mysql.png)
 
 # 3. Đếm số lượng user
 Xem kết quả:
@@ -45,15 +46,17 @@ Note: startTime và endTime là khoảng thời gian tùy chọn, điền theo f
 
 - Chương trình sử dụng thuật toán HyperLogLog để đạt được hiệu suất cao hơn và ít tài nguyên hơn
 - Sai số của thuật toán nằm trong khoảng 2-3%
-- 
-- Kết quả không sử dụng HyperLogLog từ HDFS
-![image](img.png)
+- Kết quả không sử dụng HyperLogLog từ HDFS: 
 
-- Kết quả sử dụng HyperLogLog từ HDFS
-![image](img_1.png)
+![image](image/img.png)
 
-- Kết quả sử dụng HyperLogLog từ Mysql
-![image](result_mysql.png)
+- Kết quả sử dụng HyperLogLog từ HDFS: 
+
+![image](image/img_1.png)
+
+- Kết quả sử dụng HyperLogLog từ Mysql: 
+
+![image](image/result_mysql.png)
 
 
 Note: Trước khi chạy lệnh các lệnh bash ở trên, chúng ta phải build thành file jar with dependencies
