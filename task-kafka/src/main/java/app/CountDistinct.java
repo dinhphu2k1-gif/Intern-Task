@@ -107,8 +107,8 @@ public class CountDistinct {
 
         for (String dir : list) {
             Dataset<Row> df = this.spark.read().format("parquet").load(dir);
-
-            newDF = newDF.unionByName(df);
+            df.printSchema();
+            newDF = newDF.union(df);
 //            System.out.println("Finish file: " + dir);
         }
 
@@ -130,8 +130,6 @@ public class CountDistinct {
      * @param endTime
      */
     public void countDistinctFromMysql(String startTime, String endTime){
-        startTime = "'" + startTime + "'";
-        endTime = "'" + endTime + "'";
         Dataset<Row> df = spark.read()
                 .format("jdbc")
                 .option("driver", "com.mysql.cj.jdbc.Driver")
@@ -143,8 +141,7 @@ public class CountDistinct {
 
         df.show();
 
-        String contition = String.format("Day <= %s and Day > %s", startTime, endTime);
-        df.filter(contition)
+        df.filter(col("Day").geq(startTime)).filter(col("Day").lt(endTime))
                 .select(col("bannerId"), hll_cardinality("guid_hll").as("count"))
                 .show(false);
     }
