@@ -97,7 +97,7 @@ public class CountDistinct {
         Dataset<Row> newDF;
 
         StructType schema = createStructType(new StructField[]{
-                createStructField("day", StringType, true),
+                createStructField("Day", StringType, true),
                 createStructField("bannerId", IntegerType, true),
                 createStructField("guid", LongType, true)
         });
@@ -113,9 +113,9 @@ public class CountDistinct {
 
 //        newDF.show();
 
-        Dataset<Row> resDF = newDF.groupBy(col("day"), col("bannerId"))
+        Dataset<Row> resDF = newDF.groupBy(col("Day"), col("bannerId"))
                 .agg(hll_init_agg("guid").as("guid_hll"))
-                .groupBy(col("day"), col("bannerId"))
+                .groupBy(col("Day"), col("bannerId"))
                 .agg(hll_merge("guid_hll").as("guid_hll"));
 
         resDF.select(col("bannerId"), hll_cardinality("guid_hll").as("count"))
@@ -140,7 +140,7 @@ public class CountDistinct {
 
         df.show();
 
-        String contition = String.format("day <= %s and day > %s", startTime, endTime);
+        String contition = String.format("Day <= %s and Day > %s", startTime, endTime);
         df.filter(contition)
                 .select(col("bannerId"), hll_cardinality("guid_hll").as("count"))
                 .show(false);
