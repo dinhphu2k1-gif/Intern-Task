@@ -23,11 +23,7 @@ import static com.swoop.alchemy.spark.expressions.hll.functions.hll_merge;
 import static com.swoop.alchemy.spark.expressions.hll.functions.hll_cardinality;
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.desc;
-import static org.apache.spark.sql.types.DataTypes.createStructType;
-import static org.apache.spark.sql.types.DataTypes.createStructField;
-import static org.apache.spark.sql.types.DataTypes.LongType;
-import static org.apache.spark.sql.types.DataTypes.IntegerType;
-import static org.apache.spark.sql.types.DataTypes.TimestampType;
+import static org.apache.spark.sql.types.DataTypes.*;
 
 public class CountDistinct {
     /**
@@ -101,7 +97,7 @@ public class CountDistinct {
         Dataset<Row> newDF;
 
         StructType schema = createStructType(new StructField[]{
-                createStructField("time", TimestampType, true),
+                createStructField("day", StringType, true),
                 createStructField("bannerId", IntegerType, true),
                 createStructField("guid", LongType, true)
         });

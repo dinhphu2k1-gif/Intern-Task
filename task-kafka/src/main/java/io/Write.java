@@ -100,7 +100,8 @@ public class Write {
                 .master("yarn")
                 .getOrCreate();
 
-            writeToMysql();
+//            writeToMysql();
+        writeToHDFS();
     }
 
     /**
