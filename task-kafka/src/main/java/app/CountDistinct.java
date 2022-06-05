@@ -148,22 +148,14 @@ public class CountDistinct {
 
     /**
      * Bắt đầu chương trình
-     * @param function : lựa chọn hàm để đếm
-     * @param startTime : thời gian bắt đầu
-     * @param endTime : thời gian kết thúc
      */
-    public void run(String function, String startTime, String endTime) {
+    public void run() {
         this.spark = SparkSession.builder()
                 .appName("Count distinct bannerId")
                 .master("yarn")
                 .getOrCreate();
 
-        if (function == "mysql") {
-            countDistinctFromMysql(startTime, endTime);
-        }
-        else if (function == "hdfs") {
-            countDistinctFromHDFS(startTime, endTime);
-        }
+        countDistinctFromMysql("2022-06-04", "2022-06-05");
     }
 
     /**
@@ -173,9 +165,6 @@ public class CountDistinct {
     public static void main(String[] args) {
         CountDistinct app = new CountDistinct();
 
-        String function = args[0];
-        String startTime = args[1];
-        String endTime = args[2];
-        app.run(function, startTime, endTime);
+        app.run();
     }
 }
