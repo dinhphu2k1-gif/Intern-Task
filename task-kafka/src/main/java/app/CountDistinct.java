@@ -140,8 +140,6 @@ public class CountDistinct {
 
         df.filter(col("Day").geq(startTime)).filter(col("Day").lt(endTime))
                 .groupBy(col("Day"), col("bannerId"))
-                .agg(hll_init_agg("guid").as("guid_hll"))
-                .groupBy(col("Day"), col("bannerId"))
                 .agg(hll_merge("guid_hll").as("guid_hll"))
                 .select(col("bannerId"), hll_cardinality("guid_hll").as("count"))
                 .orderBy(desc("count"))
