@@ -15,9 +15,11 @@ import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
 import java.io.IOException;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.swoop.alchemy.spark.expressions.hll.functions.hll_init_agg;
 import static com.swoop.alchemy.spark.expressions.hll.functions.hll_merge;
@@ -110,21 +112,27 @@ public class CountDistinct {
         }
 
         System.out.println("Count not using HyperLogLog");
+        long t0 = System.nanoTime();
         newDF.groupBy("bannerId")
                 .agg(count_distinct(col("guid")).as("count"))
                 .orderBy(desc("count"))
                 .show();
 
+        long t1 = System.nanoTime();
+        System.out.println("Execution time: " + TimeUnit.NANOSECONDS.toMillis(t1 - t0) + "\n");
 
+        System.out.println("Count using Hyperloglog");
         Dataset<Row> resDF = newDF.groupBy(col("bannerId"))
                 .agg(hll_init_agg("guid").as("guid_hll"))
                 .groupBy(col("bannerId"))
                 .agg(hll_merge("guid_hll").as("guid_hll"));
 
-        System.out.println("Count using Hyperloglog");
         resDF.select(col("bannerId"), hll_cardinality("guid_hll").as("count"))
                 .orderBy(desc("count"))
                 .show(false);
+
+        long t2 = System.nanoTime();
+        System.out.println("Execution time: " + TimeUnit.NANOSECONDS.toMillis(t2 - t1) + "\n");
     }
 
     /**
@@ -142,14 +150,16 @@ public class CountDistinct {
                 .option("password", "12012001")
                 .load();
 
-        df.show();
-
+        long t0 = System.nanoTime();
         df.filter(col("Day").geq(startTime)).filter(col("Day").lt(endTime))
                 .groupBy(col("Day"), col("bannerId"))
                 .agg(hll_merge("guid_hll").as("guid_hll"))
                 .select(col("bannerId"), hll_cardinality("guid_hll").as("count"))
                 .orderBy(desc("count"))
                 .show(false);
+
+        long t1 = System.nanoTime();
+        System.out.println("Execution time: " + TimeUnit.NANOSECONDS.toMillis(t1 - t0) + "\n");
     }
 
     /**

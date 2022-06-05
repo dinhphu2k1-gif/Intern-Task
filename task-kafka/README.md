@@ -19,26 +19,35 @@ Chú ý:
 * Thời gian được tính một ngày là thời gian từ 6 giờ hôm nay đến 6 giờ hôm sau. ví dụ: thời gian user vào ngày 19 là khoảng thời gian bắt đầu từ 6 giờ sáng nghày 19- 6h sáng ngày 20
 * Sừ dụng thuật toán hyperloglog để ước lượng user. (lấy thư viện java viết sẵn rồi mà quất)
 
-# 2. Ghi dữ liệu vào HDFS
+# 2. Ghi dữ liệu
 Chạy file bash:
 
 ```
 ./readwrite.sh
 ```
 
-- Dữ liệu sẽ được đọc từ Kafka mỗi 30 phút
+- Dữ liệu sẽ được đọc từ Kafka mỗi 1 tiếng
 - Lọc dữ liệu từ trường value trong mỗi message
 - Ép kiểu dữ liệu thành String và tách các trường bằng kí tự phân tách "\t"
+- Dữ liệu ghi vào HDFS sẽ được phân chia theo từng ngày
+    ![imae](hdfs.png)
+- Dữ liệu ghi vào Mysql sẽ được ghi tập trung vào 1 bảng duy nhất - table logs
+  ![image](desc_logs.png)
+  ![image](data_at_mysql.png)
 
 # 3. Đếm số lượng user
 Xem kết quả:
 
-```aidl
-./count.sh
 ```
+  spark-submit --class app.CountDistinct --master yarn --deploy-mode client --num-executors 2 --executor-memory 2g --executor-cores 2 --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.1 target/task-kafka-1.0-SNAPSHOT-jar-with-dependencies.jar startTime endTime
+```
+Note: startTime và endTime là khoảng thời gian tùy chọn, điền theo format "yyyy-MM-dd"
 
 - Chương trình sử dụng thuật toán HyperLogLog để đạt được hiệu suất cao hơn và ít tài nguyên hơn
 - Sai số của thuật toán nằm trong khoảng 1%
+- Kết quả không sử dụng HyperLogLog
+![image](not_HyperLogLog.png)
+- Kết quả 
 
 
 Note: Trước khi chạy lệnh các lệnh bash ở trên, chúng ta phải build thành file jar with dependencies
