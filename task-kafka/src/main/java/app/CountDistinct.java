@@ -145,21 +145,18 @@ public class CountDistinct {
     /**
      * Bắt đầu chương trình
      */
-    public void run(String function, String startTime, String endTIme) {
+    public void run(String startTime, String endTIme) {
         this.spark = SparkSession.builder()
                 .appName("Count distinct bannerId")
                 .master("yarn")
                 .getOrCreate();
 
-        if (function == "mysql") {
-            countDistinctFromMysql(startTime, endTIme);
-        }
-        else if (function == "hdfs") {
-            countDistinctFromHDFS(startTime, endTIme);
-        }
-        else {
-            System.out.println("Not found function!!!");
-        }
+        System.out.println("From Mysql");
+        countDistinctFromMysql(startTime, endTIme);
+
+        System.out.println("From HDFS");
+        countDistinctFromHDFS(startTime, endTIme);
+
     }
 
     /**
@@ -169,9 +166,9 @@ public class CountDistinct {
     public static void main(String[] args) {
         CountDistinct app = new CountDistinct();
 
-        String function = args[0];
-        String startTime = args[1];
-        String endTime = args[2];
-        app.run(function, startTime, endTime);
+        String startTime = args[0];
+        String endTime = args[1];
+        System.out.println(startTime + " " + endTime);
+        app.run(startTime, endTime);
     }
 }
