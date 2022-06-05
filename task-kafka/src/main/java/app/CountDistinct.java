@@ -112,6 +112,7 @@ public class CountDistinct {
         System.out.println("Count not using HyperLogLog");
         newDF.groupBy("bannerId")
                 .agg(count_distinct(col("guid")).as("count"))
+                .orderBy(desc("count"))
                 .show();
 
 
@@ -120,6 +121,7 @@ public class CountDistinct {
                 .groupBy(col("bannerId"))
                 .agg(hll_merge("guid_hll").as("guid_hll"));
 
+        System.out.println("Count using Hyperloglog");
         resDF.select(col("bannerId"), hll_cardinality("guid_hll").as("count"))
                 .orderBy(desc("count"))
                 .show(false);
