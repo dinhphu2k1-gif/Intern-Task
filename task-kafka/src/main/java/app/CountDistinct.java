@@ -136,7 +136,7 @@ public class CountDistinct {
                 .option("password", "12012001")
                 .load();
 
-        String contition = String.format("day <= {} and day > {}", startTime, endTime);
+        String contition = String.format("day <= %s and day > %s", startTime, endTime);
         df.filter(contition)
                 .select(col("bannerId"), hll_cardinality("guid_hll").as("count"))
                 .show(false);
@@ -145,13 +145,21 @@ public class CountDistinct {
     /**
      * Bắt đầu chương trình
      */
-    public void run() {
+    public void run(String function, String startTime, String endTIme) {
         this.spark = SparkSession.builder()
                 .appName("Count distinct bannerId")
                 .master("yarn")
                 .getOrCreate();
 
-        countDistinctFromMysql("2022-06-04", "2022-06-05");
+        if (function == "mysql") {
+            countDistinctFromMysql(startTime, endTIme);
+        }
+        else if (function == "hdfs") {
+            countDistinctFromHDFS(startTime, endTIme);
+        }
+        else {
+            System.out.println("Not found function!!!");
+        }
     }
 
     /**
@@ -161,6 +169,9 @@ public class CountDistinct {
     public static void main(String[] args) {
         CountDistinct app = new CountDistinct();
 
-        app.run();
+        String function = args[0];
+        String startTime = args[1];
+        String endTime = args[2];
+        app.run(function, startTime, endTime);
     }
 }
