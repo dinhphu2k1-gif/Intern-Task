@@ -16,6 +16,7 @@ import org.apache.spark.sql.types.StructType;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.swoop.alchemy.spark.expressions.hll.functions.hll_init_agg;
@@ -97,7 +98,7 @@ public class CountDistinct {
         Dataset<Row> newDF;
 
         StructType schema = createStructType(new StructField[]{
-                createStructField("Day", StringType, true),
+                createStructField("Day", DateType, true),
                 createStructField("bannerId", IntegerType, true),
                 createStructField("guid", LongType, true)
         });
@@ -129,6 +130,8 @@ public class CountDistinct {
      * @param endTime
      */
     public void countDistinctFromMysql(String startTime, String endTime){
+        startTime = "'" + startTime + "'";
+        endTime = "'" + endTime + "'";
         Dataset<Row> df = spark.read()
                 .format("jdbc")
                 .option("driver", "com.mysql.cj.jdbc.Driver")
